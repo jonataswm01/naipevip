@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  <defs>
+    <filter id="grain">
+      <feTurbulence type="turbulence" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="turbulence"/>
+      <feColorMatrix in="turbulence" type="saturate" values="0" result="desaturated"/>
+      <feComponentTransfer in="desaturated">
+        <feFuncR type="linear" slope="0.5" intercept="0.25"/>
+        <feFuncG type="linear" slope="0.5" intercept="0.25"/>
+        <feFuncB type="linear" slope="0.5" intercept="0.25"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" filter="url(#grain)" opacity="1"/>
+</svg>

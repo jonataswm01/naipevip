@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Filtro pictórico mais intenso -->
+    <filter id="paintEffect" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    
+    <!-- Filtro de grain sutil -->
+    <filter id="subtleGrain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay"/>
+    </filter>
+    
+    <!-- Gradiente principal - pôr do sol tardezinha -->
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E3A4C"/>
+      <stop offset="25%" style="stop-color:#2F4F3A"/>
+      <stop offset="45%" style="stop-color:#5C3D2E"/>
+      <stop offset="65%" style="stop-color:#8B3A2F"/>
+      <stop offset="85%" style="stop-color:#A85A4F"/>
+      <stop offset="100%" style="stop-color:#3D261D"/>
+    </linearGradient>
+    
+    <!-- Gradiente radial para o sol -->
+    <radialGradient id="sunGlow" cx="70%" cy="35%" r="40%">
+      <stop offset="0%" style="stop-color:#E8B84A;stop-opacity:0.8"/>
+      <stop offset="40%" style="stop-color:#D4A03A;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#D4A03A;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Fundo principal gradiente -->
+  <rect width="100%" height="100%" fill="url(#heroGrad)"/>
+  
+  <!-- Brilho do sol -->
+  <rect width="100%" height="100%" fill="url(#sunGlow)"/>
+  
+  <!-- Camadas artísticas com efeito pictórico -->
+  <g filter="url(#paintEffect)">
+    <!-- Sol estilizado -->
+    <circle cx="560" cy="380" r="100" fill="#D4A03A" opacity="0.85"/>
+    <circle cx="560" cy="380" r="70" fill="#E8B84A" opacity="0.6"/>
+    <circle cx="560" cy="380" r="40" fill="#FDF8F0" opacity="0.4"/>
+    
+    <!-- Nuvens estilizadas (pinceladas) -->
+    <ellipse cx="200" cy="250" rx="180" ry="40" fill="#A85A4F" opacity="0.3" transform="rotate(-5 200 250)"/>
+    <ellipse cx="600" cy="300" rx="150" ry="35" fill="#7D5E4F" opacity="0.25" transform="rotate(3 600 300)"/>
+    <ellipse cx="100" cy="350" rx="120" ry="30" fill="#8B3A2F" opacity="0.2" transform="rotate(-8 100 350)"/>
+    
+    <!-- Silhueta de paisagem urbana/natural -->
+    <path d="M0,900 
+             Q50,850 100,870 
+             L120,800 L140,870 
+             Q200,840 250,860 
+             L280,780 L300,850 L320,800 L340,860
+             Q400,830 450,850
+             L480,750 L500,820 L520,780 L550,850
+             Q600,820 650,840
+             L680,760 L700,830 L720,790 L750,850
+             Q780,830 800,850
+             L800,900 Z" 
+          fill="#3D261D" opacity="0.9"/>
+    
+    <!-- Segunda camada de silhueta -->
+    <path d="M0,950 
+             Q100,920 200,940 
+             Q300,910 400,930
+             Q500,900 600,920
+             Q700,890 800,910
+             L800,950 Z" 
+          fill="#1F3528" opacity="0.7"/>
+    
+    <!-- Elementos decorativos (figuras abstratas inspiradas em arte brasileira) -->
+    <ellipse cx="150" cy="700" rx="80" ry="120" fill="#A63D2D" opacity="0.15" transform="rotate(-10 150 700)"/>
+    <ellipse cx="650" cy="650" rx="100" ry="150" fill="#5C3D2E" opacity="0.12" transform="rotate(15 650 650)"/>
+    
+    <!-- Folhagens estilizadas -->
+    <path d="M50,1200 Q60,1000 40,800 Q80,750 50,700" stroke="#2F4F3A" stroke-width="12" fill="none" opacity="0.4" stroke-linecap="round"/>
+    <path d="M750,1200 Q760,1050 740,900 Q780,850 750,800" stroke="#1F3528" stroke-width="10" fill="none" opacity="0.35" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Overlay de textura grain -->
+  <rect width="100%" height="100%" filter="url(#subtleGrain)" opacity="0.08"/>
+</svg>

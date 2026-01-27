@@ -1,21 +1,239 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =============================================
+   TARDEZINHA PRÉ-CARNAVAL - PALETA DE CORES
+   Identidade Visual: Arte brasileira moderna
+   Clima: Misterioso, Artístico, Cultural, Quente
+   ============================================= */
+
+@theme inline {
+  /* ===== FONTES ===== */
+  --font-cinzel: var(--font-cinzel);
+  --font-serif: var(--font-source-serif);
+
+  /* ===== CORES BASE (FUNDOS) ===== */
+  /* Tons terrosos profundos - sustentam o clima do site */
+  
+  --color-terracota: #8B3A2F;
+  --color-terracota-dark: #6B2A1F;
+  --color-terracota-light: #A85A4F;
+  
+  --color-marrom: #5C3D2E;
+  --color-marrom-dark: #3D261D;
+  --color-marrom-light: #7D5E4F;
+  
+  --color-verde-musgo: #2F4F3A;
+  --color-verde-musgo-dark: #1F3528;
+  --color-verde-musgo-light: #4A6B52;
+  
+  --color-azul-petroleo: #1E3A4C;
+  --color-azul-petroleo-dark: #0F2535;
+  --color-azul-petroleo-light: #2E5A6C;
+
+  /* ===== CORES DE DESTAQUE (AÇÃO E HIERARQUIA) ===== */
+  
+  --color-amarelo: #D4A03A;
+  --color-amarelo-dark: #B8882A;
+  --color-amarelo-light: #E8B84A;
+  
+  --color-vermelho: #A63D2D;
+  --color-vermelho-dark: #8B2D1D;
+  --color-vermelho-light: #C65D4D;
+
+  /* ===== CORES DE TEXTO ===== */
+  
+  --color-off-white: #F5F0E8;
+  --color-off-white-soft: #EBE5DB;
+  --color-cream: #FDF8F0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ===== ESTILOS BASE ===== */
+
+body {
+  background: var(--color-terracota-dark);
+  color: var(--color-off-white);
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+}
+
+/* Classe utilitária para títulos */
+.font-titulo {
+  font-family: var(--font-cinzel), "Cinzel", serif;
+}
+
+/* Classe utilitária para textos */
+.font-texto {
+  font-family: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+}
+
+/* ===== SCROLLBAR CUSTOMIZADA ===== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-marrom-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-terracota);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-terracota-light);
+}
+
+/* ===== SELEÇÃO DE TEXTO ===== */
+
+::selection {
+  background: var(--color-amarelo);
+  color: var(--color-marrom-dark);
+}
+
+/* ===== BACKGROUNDS ARTÍSTICOS ===== */
+
+/* Hero background com textura */
+.bg-hero {
+  background-image: url('/artes/hero-bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Seção com textura sutil */
+.bg-section-texture {
+  background-image: url('/artes/section-texture.svg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Background para CTA final */
+.bg-cta {
+  background-image: url('/artes/cta-bg.svg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Pattern abstrato */
+.bg-pattern {
+  background-image: url('/artes/pattern-abstract.svg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===== OVERLAYS DE TEXTURA ===== */
+
+/* Overlay de ruído/grain */
+.texture-noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/artes/texture-noise.svg');
+  background-repeat: repeat;
+  opacity: 0.05;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Overlay de grain mais intenso */
+.texture-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/artes/texture-grain.svg');
+  background-repeat: repeat;
+  opacity: 0.08;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+/* Container com posição relativa para overlays */
+.texture-noise,
+.texture-grain {
+  position: relative;
+}
+
+/* ===== GRADIENTES ARTÍSTICOS ===== */
+
+/* Gradiente pôr do sol */
+.gradient-sunset {
+  background: linear-gradient(
+    180deg,
+    var(--color-azul-petroleo) 0%,
+    var(--color-verde-musgo) 25%,
+    var(--color-marrom) 50%,
+    var(--color-terracota) 75%,
+    var(--color-terracota-dark) 100%
+  );
+}
+
+/* Gradiente noturno */
+.gradient-night {
+  background: linear-gradient(
+    135deg,
+    var(--color-azul-petroleo-dark) 0%,
+    var(--color-verde-musgo-dark) 50%,
+    var(--color-marrom-dark) 100%
+  );
+}
+
+/* Gradiente quente */
+.gradient-warm {
+  background: linear-gradient(
+    180deg,
+    var(--color-terracota-dark) 0%,
+    var(--color-terracota) 50%,
+    var(--color-marrom) 100%
+  );
+}
+
+/* ===== EFEITOS DE SOMBRA ARTÍSTICA ===== */
+
+.shadow-warm {
+  box-shadow: 0 4px 30px rgba(139, 58, 47, 0.3);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 40px rgba(212, 160, 58, 0.2);
+}
+
+/* ===== BORDAS ORGÂNICAS ===== */
+
+.border-organic {
+  border-radius: 0.5rem 1rem 0.5rem 1rem;
+}
+
+.border-organic-lg {
+  border-radius: 1rem 2rem 1rem 2rem;
+}
+
+/* ===== ANIMAÇÕES BASE ===== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 160, 58, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(212, 160, 58, 0.5);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
