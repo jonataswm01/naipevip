@@ -11,7 +11,7 @@ export default function SectionAbout() {
 
   return (
     <section
-      className="bg-section-texture section-soft texture-grain min-h-[70vh] py-24 md:py-32 px-6 relative overflow-hidden flex items-center"
+      className="bg-section-texture texture-grain min-h-[70vh] py-24 md:py-32 px-6 relative overflow-hidden flex items-center"
       ref={ref}
     >
       <div className="absolute inset-0 opacity-40 bg-pattern" aria-hidden="true" />
