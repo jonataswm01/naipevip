@@ -138,6 +138,14 @@ body {
   background-repeat: no-repeat;
 }
 
+/* Background para Informações - extensão do balcão */
+.bg-info-counter {
+  background-image: url('/artes/info-section-bg.svg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
 /* ===== OVERLAYS DE TEXTURA ===== */
 
 /* Overlay de ruído/grain - mais intenso para efeito pictórico */

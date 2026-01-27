@@ -2,6 +2,7 @@ import Hero from '@/components/Hero';
 import SectionAbout from '@/components/SectionAbout';
 import SectionMusic from '@/components/SectionMusic';
 import SectionBar from '@/components/SectionBar';
+import SectionInfo from '@/components/SectionInfo';
 
 export default function Home() {
   return (
@@ -14,6 +15,8 @@ export default function Home() {
       <SectionMusic />
       {/* Seção 4 - Bar & Ambiente */}
       <SectionBar />
+      {/* Seção 5 - Informações do Evento */}
+      <SectionInfo />
     </main>
   );
 }

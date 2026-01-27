@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Canvas texture filter (igual ao bar) -->
+    <filter id="infoCanvasTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="turbulence" baseFrequency="0.02 0.05" numOctaves="4" seed="8" result="weave"/>
+      <feDiffuseLighting in="weave" lighting-color="#F5F0E8" surfaceScale="4" result="lit">
+        <feDistantLight azimuth="225" elevation="55"/>
+      </feDiffuseLighting>
+      <feBlend in="SourceGraphic" in2="lit" mode="multiply"/>
+    </filter>
+    
+    <!-- Torn paper edge filter -->
+    <filter id="infoTornEdge" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="18" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    
+    <!-- Paper grain overlay (igual ao bar) -->
+    <filter id="infoPaperGrain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" seed="5" stitchTiles="stitch" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.12 0"/>
+    </filter>
+    
+    <!-- Vignette (igual ao bar) -->
+    <radialGradient id="infoVignette" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0"/>
+      <stop offset="100%" style="stop-color:#0A1520;stop-opacity:0.5"/>
+    </radialGradient>
+    
+    <!-- Gradiente de mesclagem no topo (usando cores do bar) -->
+    <linearGradient id="topBlend" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0A1825"/>
+      <stop offset="8%" style="stop-color:#0E1820"/>
+      <stop offset="100%" style="stop-color:#0E1820"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base com gradiente de mesclagem -->
+  <rect width="100%" height="100%" fill="url(#topBlend)"/>
+  
+  <!-- Painéis verticais - continuação do balcão (mesmas posições) -->
+  <g filter="url(#infoTornEdge)" opacity="0.35">
+    <rect x="70" y="0" width="8" height="1200" fill="#162535" rx="2"/>
+    <rect x="190" y="0" width="8" height="1200" fill="#162535" rx="2"/>
+    <rect x="310" y="0" width="8" height="1200" fill="#162535" rx="2"/>
+    <rect x="430" y="0" width="8" height="1200" fill="#162535" rx="2"/>
+    <rect x="550" y="0" width="8" height="1200" fill="#162535" rx="2"/>
+    <rect x="670" y="0" width="8" height="1200" fill="#162535" rx="2"/>
+  </g>
+  
+  <!-- Canvas texture overlay (igual ao bar) -->
+  <rect width="100%" height="100%" filter="url(#infoCanvasTexture)" opacity="0.5"/>
+  
+  <!-- Paper grain overlay (igual ao bar) -->
+  <rect width="100%" height="100%" filter="url(#infoPaperGrain)"/>
+  
+  <!-- Vignette (igual ao bar) -->
+  <rect width="100%" height="100%" fill="url(#infoVignette)"/>
+</svg>

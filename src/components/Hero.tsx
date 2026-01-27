@@ -8,9 +8,9 @@ export default function Hero() {
       {/* Overlay para contraste - mais sutil para não competir com a arte */}
       <div className="absolute inset-0 bg-gradient-to-t from-marrom-dark/70 via-transparent to-transparent z-0" />
       
-      {/* Conteúdo principal - centralizado com leve deslocamento para cima */}
+      {/* Conteúdo principal - centralizado */}
       <motion.div 
-        className="text-center max-w-lg mx-auto relative z-10 -mt-[8vh]"
+        className="text-center w-full max-w-lg relative z-10"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
