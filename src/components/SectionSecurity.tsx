@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 // Ícone Pix
@@ -113,7 +113,7 @@ export default function SectionSecurity() {
   };
 
   // Variants alternados para entrada (esquerda/direita)
-  const getItemVariants = (index: number) => ({
+  const getItemVariants = (index: number): Variants => ({
     hidden: { 
       opacity: 0, 
       x: index % 2 === 0 ? -25 : 25,
@@ -121,7 +121,7 @@ export default function SectionSecurity() {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.5, ease: 'easeOut' },
+      transition: { duration: 0.5, ease: 'easeOut' as const },
     },
   });
 

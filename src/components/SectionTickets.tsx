@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 interface TicketOption {
@@ -50,12 +50,12 @@ export default function SectionTickets() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' },
+      transition: { duration: 0.5, ease: 'easeOut' as const },
     },
   };
 
@@ -110,7 +110,7 @@ export default function SectionTickets() {
 
 interface TicketCardProps {
   ticket: TicketOption;
-  variants: typeof import('framer-motion').Variants;
+  variants: Variants;
 }
 
 function TicketCard({ ticket, variants }: TicketCardProps) {
