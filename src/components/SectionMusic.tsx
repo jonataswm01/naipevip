@@ -68,9 +68,9 @@ export default function SectionMusic() {
               No line-up da noite:
             </p>
             <div className="mt-3 flex flex-col items-center text-off-white">
-              <span className="font-titulo text-lg md:text-xl tracking-wide">DJ Aurora Lima</span>
+              <span className="font-titulo text-lg md:text-xl tracking-wide">DJ Meomas</span>
               <span className="h-px w-40 bg-off-white/30 my-2" aria-hidden="true" />
-              <span className="font-titulo text-lg md:text-xl tracking-wide">DJ Caio Nogueira</span>
+              <span className="font-titulo text-lg md:text-xl tracking-wide">DJ Valle</span>
             </div>
           </div>
         </div>

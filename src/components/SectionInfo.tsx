@@ -21,7 +21,7 @@ export default function SectionInfo() {
         </svg>
       ),
       label: 'Data',
-      value: '15 de Fevereiro',
+      value: '06 de Fevereiro',
     },
     {
       icon: (
@@ -32,7 +32,7 @@ export default function SectionInfo() {
         </svg>
       ),
       label: 'Horário',
-      value: 'A partir do pôr do sol',
+      value: 'A partir das 20h',
     },
     {
       icon: (
@@ -43,8 +43,8 @@ export default function SectionInfo() {
         </svg>
       ),
       label: 'Local',
-      value: 'Região central',
-      sublabel: 'Endereço completo após a compra',
+      value: 'Centro Comunitário',
+      sublabel: 'Fernando Prestes - SP',
     },
     {
       icon: (

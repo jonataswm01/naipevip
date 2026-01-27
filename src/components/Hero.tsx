@@ -53,9 +53,9 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="flex flex-wrap gap-3 justify-center items-center text-off-white-soft">
-            <span className="font-texto">📅 15 de Fevereiro</span>
+            <span className="font-texto">📅 06 de Fevereiro</span>
             <span className="text-amarelo hidden sm:block">•</span>
-            <span className="font-texto">⏰ A partir do pôr do sol</span>
+            <span className="font-texto">⏰ A partir das 20h</span>
           </div>
         </motion.div>
         
@@ -66,7 +66,7 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          🎟️ Ingressos a partir de <span className="font-bold">R$ 50</span>
+          🎟️ Ingressos a partir de <span className="font-bold">R$ 20</span>
         </motion.p>
         
         {/* Aviso de ingressos limitados */}

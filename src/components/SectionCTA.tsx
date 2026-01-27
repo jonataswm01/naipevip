@@ -54,7 +54,7 @@ export default function SectionCTA() {
           transition={{ duration: 0.5, delay: 0.6, ease: 'easeOut' }}
         >
           <p className="font-texto text-base sm:text-lg text-off-white/80">
-            15 de Fevereiro • A partir do pôr do sol
+            06 de Fevereiro • A partir das 20h
           </p>
           <p className="font-titulo text-lg sm:text-xl text-amarelo mt-2">
             Ingressos a partir de R$ 20
