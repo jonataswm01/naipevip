@@ -61,7 +61,11 @@ export default function Footer() {
             <span key={link.label} className="flex items-center gap-3 sm:gap-4">
               <motion.a
                 href={link.href}
-                className="font-texto text-sm sm:text-base text-off-white/60 hover:text-amarelo transition-colors duration-300"
+                className={`font-texto text-sm sm:text-base transition-colors duration-300 ${
+                  index === 0 
+                    ? 'text-amarelo hover:text-amarelo-light' 
+                    : 'text-off-white/60 hover:text-amarelo'
+                }`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
                 transition={{ duration: 0.4, delay: 0.1 * index, ease: 'easeOut' }}

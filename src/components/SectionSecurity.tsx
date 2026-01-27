@@ -188,7 +188,7 @@ export default function SectionSecurity() {
         >
           <a
             href="#ingressos"
-            className="inline-block font-titulo text-base md:text-lg text-off-white/80 hover:text-off-white uppercase tracking-wider px-6 py-3 border border-off-white/25 hover:border-off-white/50 rounded-lg transition-all duration-300 hover:bg-off-white/5"
+            className="inline-block font-titulo text-base md:text-lg text-off-white hover:text-amarelo uppercase tracking-wider px-6 py-3 border border-off-white/50 hover:border-amarelo rounded-lg transition-all duration-300 hover:bg-amarelo/5"
           >
             Garantir meu ingresso
           </a>
