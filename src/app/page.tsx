@@ -4,6 +4,8 @@ import SectionMusic from '@/components/SectionMusic';
 import SectionBar from '@/components/SectionBar';
 import SectionInfo from '@/components/SectionInfo';
 import SectionTickets from '@/components/SectionTickets';
+import SectionSecurity from '@/components/SectionSecurity';
+import SectionCTA from '@/components/SectionCTA';
 
 export default function Home() {
   return (
@@ -20,6 +22,10 @@ export default function Home() {
       <SectionInfo />
       {/* Seção 6 - Ingressos */}
       <SectionTickets />
+      {/* Seção 7 - Segurança & Simplicidade */}
+      <SectionSecurity />
+      {/* Seção 8 - CTA Final */}
+      <SectionCTA />
     </main>
   );
 }

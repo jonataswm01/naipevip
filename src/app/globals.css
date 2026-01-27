@@ -162,6 +162,24 @@ body {
     0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Background para Seguranca - transicao azul para marrom */
+.bg-security {
+  background-image: url('/artes/security-bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #2A2520;
+}
+
+/* Background para CTA Final - inspirado no hero (por do sol) */
+.bg-cta-final {
+  background-image: url('/artes/cta-final-bg.svg');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-color: #6B2A1F;
+}
+
 /* ===== OVERLAYS DE TEXTURA ===== */
 
 /* Overlay de ruído/grain - mais intenso para efeito pictórico */
