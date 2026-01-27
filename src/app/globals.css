@@ -146,6 +146,22 @@ body {
   background-repeat: no-repeat;
 }
 
+/* Background para Ingressos - azul limpo com detalhes sutis */
+.bg-tickets {
+  background-image: url('/artes/tickets-bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #0F2535;
+}
+
+/* Sombra especial para card destacado de ingresso */
+.shadow-ticket-highlight {
+  box-shadow: 
+    0 0 20px rgba(212, 160, 58, 0.15),
+    0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
 /* ===== OVERLAYS DE TEXTURA ===== */
 
 /* Overlay de ruído/grain - mais intenso para efeito pictórico */

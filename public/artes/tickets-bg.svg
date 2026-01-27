@@ -1,0 +1,220 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Gradiente base azul petroleo -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0F2535"/>
+      <stop offset="40%" stop-color="#122A3D"/>
+      <stop offset="70%" stop-color="#0D1F2D"/>
+      <stop offset="100%" stop-color="#0A1822"/>
+    </linearGradient>
+    
+    <!-- Gradiente para manchas de cor -->
+    <radialGradient id="blobAzul" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E3A4C" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#1E3A4C" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#1E3A4C" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="blobVerde" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2F4F3A" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#2F4F3A" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#2F4F3A" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="blobAmarelo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D4A03A" stop-opacity="0.12"/>
+      <stop offset="50%" stop-color="#D4A03A" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#D4A03A" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="blobTerracota" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8B3A2F" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#8B3A2F" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#8B3A2F" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Filtros de blur -->
+    <filter id="blurSoft" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="40"/>
+    </filter>
+    
+    <filter id="blurMedium" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="25"/>
+    </filter>
+    
+    <filter id="blurLight" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="15"/>
+    </filter>
+    
+    <!-- Glow para particulas -->
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Glow maior para particulas maiores -->
+    <filter id="glowLarge" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Fundo base -->
+  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+  
+  <!-- ===== MANCHAS DE COR (AQUARELA) ===== -->
+  
+  <!-- Mancha azul superior esquerda -->
+  <ellipse cx="-30" cy="120" rx="200" ry="180" fill="url(#blobAzul)" filter="url(#blurSoft)"/>
+  
+  <!-- Mancha verde centro-direita -->
+  <ellipse cx="380" cy="350" rx="180" ry="220" fill="url(#blobVerde)" filter="url(#blurSoft)"/>
+  
+  <!-- Mancha terracota inferior esquerda -->
+  <ellipse cx="60" cy="700" rx="200" ry="180" fill="url(#blobTerracota)" filter="url(#blurSoft)"/>
+  
+  <!-- Mancha azul inferior direita -->
+  <ellipse cx="350" cy="780" rx="150" ry="140" fill="url(#blobAzul)" filter="url(#blurMedium)"/>
+  
+  <!-- Mancha amarelo sutil no centro (onde ficam os cards) -->
+  <ellipse cx="195" cy="420" rx="250" ry="200" fill="url(#blobAmarelo)" filter="url(#blurSoft)"/>
+  
+  <!-- Mancha verde superior direita -->
+  <ellipse cx="320" cy="80" rx="120" ry="100" fill="url(#blobVerde)" filter="url(#blurMedium)"/>
+  
+  <!-- ===== ONDAS ORGANICAS ===== -->
+  
+  <!-- Onda principal superior -->
+  <path 
+    d="M-20 180 
+       Q 80 140, 160 170 
+       T 300 150 
+       T 420 180" 
+    stroke="#F5F0E8" 
+    stroke-width="1" 
+    fill="none" 
+    opacity="0.04"
+    filter="url(#blurLight)"
+  />
+  
+  <!-- Onda secundaria superior -->
+  <path 
+    d="M-20 220 
+       Q 100 190, 180 210 
+       T 320 195 
+       T 420 220" 
+    stroke="#D4A03A" 
+    stroke-width="0.8" 
+    fill="none" 
+    opacity="0.06"
+  />
+  
+  <!-- Onda central -->
+  <path 
+    d="M-20 450 
+       Q 120 420, 200 440 
+       T 340 430 
+       T 420 455" 
+    stroke="#F5F0E8" 
+    stroke-width="0.6" 
+    fill="none" 
+    opacity="0.03"
+  />
+  
+  <!-- Onda inferior -->
+  <path 
+    d="M-20 650 
+       Q 80 620, 180 640 
+       T 300 625 
+       T 420 660" 
+    stroke="#F5F0E8" 
+    stroke-width="1" 
+    fill="none" 
+    opacity="0.04"
+    filter="url(#blurLight)"
+  />
+  
+  <!-- Onda curva dramatica -->
+  <path 
+    d="M-50 300 
+       Q 100 250, 200 320 
+       Q 300 390, 200 500 
+       Q 100 610, 200 700
+       Q 300 790, 450 750" 
+    stroke="#2F4F3A" 
+    stroke-width="1.5" 
+    fill="none" 
+    opacity="0.06"
+    filter="url(#blurLight)"
+  />
+  
+  <!-- ===== PARTICULAS DE LUZ ===== -->
+  
+  <!-- Particulas grandes (estrelas brilhantes) -->
+  <circle cx="45" cy="95" r="2" fill="#F5F0E8" opacity="0.5" filter="url(#glowLarge)"/>
+  <circle cx="340" cy="150" r="2.5" fill="#F5F0E8" opacity="0.45" filter="url(#glowLarge)"/>
+  <circle cx="280" cy="320" r="2" fill="#D4A03A" opacity="0.4" filter="url(#glowLarge)"/>
+  <circle cx="70" cy="480" r="2" fill="#F5F0E8" opacity="0.35" filter="url(#glowLarge)"/>
+  <circle cx="320" cy="580" r="2.5" fill="#F5F0E8" opacity="0.4" filter="url(#glowLarge)"/>
+  <circle cx="110" cy="720" r="2" fill="#D4A03A" opacity="0.35" filter="url(#glowLarge)"/>
+  <circle cx="355" cy="760" r="2" fill="#F5F0E8" opacity="0.3" filter="url(#glowLarge)"/>
+  
+  <!-- Particulas medias -->
+  <circle cx="120" cy="60" r="1.5" fill="#F5F0E8" opacity="0.35" filter="url(#glow)"/>
+  <circle cx="250" cy="110" r="1.5" fill="#F5F0E8" opacity="0.3" filter="url(#glow)"/>
+  <circle cx="85" cy="200" r="1.5" fill="#F5F0E8" opacity="0.25" filter="url(#glow)"/>
+  <circle cx="310" cy="240" r="1.5" fill="#D4A03A" opacity="0.3" filter="url(#glow)"/>
+  <circle cx="50" cy="350" r="1.5" fill="#F5F0E8" opacity="0.28" filter="url(#glow)"/>
+  <circle cx="360" cy="420" r="1.5" fill="#F5F0E8" opacity="0.25" filter="url(#glow)"/>
+  <circle cx="150" cy="550" r="1.5" fill="#F5F0E8" opacity="0.3" filter="url(#glow)"/>
+  <circle cx="290" cy="650" r="1.5" fill="#D4A03A" opacity="0.28" filter="url(#glow)"/>
+  <circle cx="40" cy="620" r="1.5" fill="#F5F0E8" opacity="0.22" filter="url(#glow)"/>
+  <circle cx="200" cy="780" r="1.5" fill="#F5F0E8" opacity="0.25" filter="url(#glow)"/>
+  
+  <!-- Particulas pequenas (pontos distantes) -->
+  <circle cx="180" cy="45" r="1" fill="#F5F0E8" opacity="0.2"/>
+  <circle cx="30" cy="140" r="1" fill="#F5F0E8" opacity="0.18"/>
+  <circle cx="370" cy="200" r="1" fill="#F5F0E8" opacity="0.15"/>
+  <circle cx="220" cy="180" r="1" fill="#F5F0E8" opacity="0.2"/>
+  <circle cx="140" cy="280" r="1" fill="#F5F0E8" opacity="0.15"/>
+  <circle cx="350" cy="350" r="1" fill="#F5F0E8" opacity="0.18"/>
+  <circle cx="20" cy="420" r="1" fill="#F5F0E8" opacity="0.12"/>
+  <circle cx="240" cy="380" r="1" fill="#F5F0E8" opacity="0.16"/>
+  <circle cx="100" cy="450" r="1" fill="#F5F0E8" opacity="0.14"/>
+  <circle cx="330" cy="500" r="1" fill="#F5F0E8" opacity="0.18"/>
+  <circle cx="60" cy="560" r="1" fill="#F5F0E8" opacity="0.15"/>
+  <circle cx="380" cy="620" r="1" fill="#F5F0E8" opacity="0.12"/>
+  <circle cx="170" cy="680" r="1" fill="#F5F0E8" opacity="0.16"/>
+  <circle cx="250" cy="740" r="1" fill="#F5F0E8" opacity="0.14"/>
+  <circle cx="90" cy="800" r="1" fill="#F5F0E8" opacity="0.18"/>
+  <circle cx="310" cy="820" r="1" fill="#F5F0E8" opacity="0.12"/>
+  
+  <!-- Particulas minusculas (poeira estelar) -->
+  <circle cx="95" cy="30" r="0.5" fill="#F5F0E8" opacity="0.12"/>
+  <circle cx="290" cy="70" r="0.5" fill="#F5F0E8" opacity="0.1"/>
+  <circle cx="160" cy="130" r="0.5" fill="#F5F0E8" opacity="0.11"/>
+  <circle cx="380" cy="280" r="0.5" fill="#F5F0E8" opacity="0.09"/>
+  <circle cx="10" cy="300" r="0.5" fill="#F5F0E8" opacity="0.1"/>
+  <circle cx="270" cy="460" r="0.5" fill="#F5F0E8" opacity="0.08"/>
+  <circle cx="130" cy="600" r="0.5" fill="#F5F0E8" opacity="0.1"/>
+  <circle cx="350" cy="690" r="0.5" fill="#F5F0E8" opacity="0.09"/>
+  <circle cx="50" cy="750" r="0.5" fill="#F5F0E8" opacity="0.11"/>
+  <circle cx="220" cy="830" r="0.5" fill="#F5F0E8" opacity="0.08"/>
+  
+  <!-- ===== CIRCULOS DECORATIVOS ===== -->
+  
+  <!-- Circulos organicos sutis -->
+  <circle cx="350" cy="100" r="50" fill="none" stroke="#D4A03A" stroke-width="0.5" opacity="0.05"/>
+  <circle cx="40" cy="400" r="35" fill="none" stroke="#F5F0E8" stroke-width="0.4" opacity="0.04"/>
+  <circle cx="365" cy="550" r="45" fill="none" stroke="#D4A03A" stroke-width="0.5" opacity="0.04"/>
+  <circle cx="25" cy="680" r="40" fill="none" stroke="#F5F0E8" stroke-width="0.4" opacity="0.03"/>
+  
+  <!-- ===== VINHETA FINAL ===== -->
+  <rect width="100%" height="100%" fill="url(#blobAzul)" opacity="0.15"/>
+</svg>

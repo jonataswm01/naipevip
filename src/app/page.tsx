@@ -3,6 +3,7 @@ import SectionAbout from '@/components/SectionAbout';
 import SectionMusic from '@/components/SectionMusic';
 import SectionBar from '@/components/SectionBar';
 import SectionInfo from '@/components/SectionInfo';
+import SectionTickets from '@/components/SectionTickets';
 
 export default function Home() {
   return (
@@ -17,6 +18,8 @@ export default function Home() {
       <SectionBar />
       {/* Seção 5 - Informações do Evento */}
       <SectionInfo />
+      {/* Seção 6 - Ingressos */}
+      <SectionTickets />
     </main>
   );
 }
