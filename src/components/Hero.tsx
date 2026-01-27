@@ -4,13 +4,13 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
   return (
-    <section className="bg-hero section-soft min-h-screen flex flex-col justify-end items-center px-6 pb-12 pt-20 texture-noise texture-canvas relative overflow-hidden">
+    <section className="bg-hero section-soft min-h-screen flex flex-col justify-center items-center px-6 py-8 texture-noise texture-canvas relative overflow-hidden">
       {/* Overlay para contraste - mais sutil para não competir com a arte */}
       <div className="absolute inset-0 bg-gradient-to-t from-marrom-dark/70 via-transparent to-transparent z-0" />
       
-      {/* Conteúdo principal */}
+      {/* Conteúdo principal - centralizado com leve deslocamento para cima */}
       <motion.div 
-        className="text-center max-w-lg mx-auto relative z-10"
+        className="text-center max-w-lg mx-auto relative z-10 -mt-[8vh]"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
