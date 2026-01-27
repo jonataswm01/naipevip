@@ -1,0 +1,296 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Canvas texture filter -->
+    <filter id="canvasTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="turbulence" baseFrequency="0.02 0.05" numOctaves="4" seed="8" result="weave"/>
+      <feDiffuseLighting in="weave" lighting-color="#F5F0E8" surfaceScale="4" result="lit">
+        <feDistantLight azimuth="225" elevation="55"/>
+      </feDiffuseLighting>
+      <feBlend in="SourceGraphic" in2="lit" mode="multiply"/>
+    </filter>
+    
+    <!-- Torn paper edge filter -->
+    <filter id="tornEdge" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="12" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    
+    <!-- Soft collage edge -->
+    <filter id="collageEdge" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="4" seed="22" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="0.5"/>
+    </filter>
+    
+    <!-- Paper grain overlay -->
+    <filter id="paperGrain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" seed="5" stitchTiles="stitch" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.12 0"/>
+    </filter>
+    
+    <!-- Shadow for layered depth -->
+    <filter id="layerShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="4" dy="6" stdDeviation="8" flood-color="#0F2535" flood-opacity="0.4"/>
+    </filter>
+    
+    <!-- Smaller shadow for bottles -->
+    <filter id="bottleShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="#0A1520" flood-opacity="0.5"/>
+    </filter>
+    
+    <!-- Warm glow for lights -->
+    <radialGradient id="warmGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#E8B84A;stop-opacity:0.6"/>
+      <stop offset="60%" style="stop-color:#D4A03A;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#D4A03A;stop-opacity:0"/>
+    </radialGradient>
+    
+    <!-- Vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0"/>
+      <stop offset="100%" style="stop-color:#0A1520;stop-opacity:0.5"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base night sky (darkest layer) -->
+  <rect width="100%" height="100%" fill="#0A1825"/>
+  
+  <!-- LAYER 1: Sky cutout - deep blue torn paper -->
+  <g filter="url(#collageEdge)">
+    <path d="M-20,-20 Q100,15 200,-5 Q350,20 500,0 Q650,25 820,-10 L840,280 Q720,300 580,285 Q440,310 300,290 Q160,315 20,295 Q-20,300 -20,300 Z" 
+          fill="#1A3548" filter="url(#layerShadow)"/>
+  </g>
+  
+  <!-- LAYER 2: Mid-sky collage piece -->
+  <g filter="url(#tornEdge)">
+    <path d="M-30,80 Q80,60 180,85 Q320,55 460,90 Q600,60 740,95 Q830,75 830,80 L840,220 Q720,250 560,230 Q400,260 240,235 Q80,265 -30,240 Z" 
+          fill="#264A5C" filter="url(#layerShadow)" opacity="0.85"/>
+  </g>
+  
+  <!-- STRING LIGHTS - Higher position -->
+  <g filter="url(#tornEdge)">
+    <!-- Light wire - torn paper strip -->
+    <path d="M-10,95 Q100,75 200,100 Q350,70 500,105 Q650,80 810,110" 
+          stroke="#3D5060" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.7"/>
+    
+    <!-- Light bulb cutouts -->
+    <g filter="url(#collageEdge)">
+      <ellipse cx="80" cy="115" rx="18" ry="24" fill="#2A3E4A"/>
+      <ellipse cx="200" cy="108" rx="16" ry="22" fill="#2A3E4A"/>
+      <ellipse cx="340" cy="118" rx="18" ry="24" fill="#2A3E4A"/>
+      <ellipse cx="480" cy="106" rx="16" ry="22" fill="#2A3E4A"/>
+      <ellipse cx="620" cy="116" rx="18" ry="24" fill="#2A3E4A"/>
+      <ellipse cx="760" cy="110" rx="16" ry="22" fill="#2A3E4A"/>
+    </g>
+    
+    <!-- Warm glow circles -->
+    <circle cx="80" cy="115" r="50" fill="url(#warmGlow)"/>
+    <circle cx="200" cy="108" r="45" fill="url(#warmGlow)"/>
+    <circle cx="340" cy="118" r="50" fill="url(#warmGlow)"/>
+    <circle cx="480" cy="106" r="45" fill="url(#warmGlow)"/>
+    <circle cx="620" cy="116" r="50" fill="url(#warmGlow)"/>
+    <circle cx="760" cy="110" r="45" fill="url(#warmGlow)"/>
+    
+    <!-- Highlight dots on bulbs -->
+    <circle cx="74" cy="106" r="4" fill="#F5E6C8" opacity="0.7"/>
+    <circle cx="194" cy="100" r="3" fill="#F5E6C8" opacity="0.7"/>
+    <circle cx="334" cy="110" r="4" fill="#F5E6C8" opacity="0.7"/>
+    <circle cx="474" cy="98" r="3" fill="#F5E6C8" opacity="0.7"/>
+    <circle cx="614" cy="108" r="4" fill="#F5E6C8" opacity="0.7"/>
+    <circle cx="754" cy="102" r="3" fill="#F5E6C8" opacity="0.7"/>
+  </g>
+  
+  <!-- LAYER 3: Shelf/wall area - larger space for bottles -->
+  <g filter="url(#collageEdge)">
+    <path d="M-30,220 Q60,200 160,225 Q300,195 440,235 Q580,205 720,240 Q830,215 840,225 L840,580 Q700,600 540,585 Q380,610 220,590 Q60,615 -30,595 Z" 
+          fill="#162530" filter="url(#layerShadow)"/>
+  </g>
+  
+  <!-- Shelf line - torn paper strip -->
+  <g filter="url(#tornEdge)">
+    <path d="M-10,285 Q150,278 300,290 Q450,280 600,292 Q750,282 810,288" 
+          stroke="#2A3E4A" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <path d="M-10,290 Q150,284 300,296 Q450,286 600,298 Q750,288 810,294" 
+          stroke="#D4A03A" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+  </g>
+  
+  <!-- ========== BOTTLES & BAR OBJECTS - LAYERED CUTOUTS ========== -->
+  
+  <!-- WINE BOTTLE 1 - 3 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Body layer -->
+    <path d="M45,570 Q38,530 40,450 Q42,380 48,340 Q52,310 58,300 Q64,292 72,292 Q80,292 86,300 Q92,310 96,340 Q102,380 104,450 Q106,530 100,570 Z" 
+          fill="#1A2530" filter="url(#collageEdge)"/>
+    <!-- Label layer - separate paper -->
+    <rect x="50" y="420" width="44" height="55" rx="3" fill="#3A4A55" opacity="0.7" transform="rotate(-2 72 447)" filter="url(#tornEdge)"/>
+    <!-- Highlight strip -->
+    <path d="M58,350 L62,520" stroke="#E8B84A" stroke-width="4" stroke-linecap="round" opacity="0.18"/>
+  </g>
+  
+  <!-- COCKTAIL SHAKER - 3 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Body layer -->
+    <path d="M135,570 Q128,540 130,480 Q132,440 140,420 Q148,405 165,400 Q182,405 190,420 Q198,440 200,480 Q202,540 196,570 Z" 
+          fill="#2A3D48" filter="url(#collageEdge)"/>
+    <!-- Cap layer -->
+    <path d="M148,400 Q150,385 158,375 Q165,368 172,375 Q180,385 182,400 Z" 
+          fill="#3A4D58" filter="url(#tornEdge)"/>
+    <!-- Metal band -->
+    <rect x="138" y="430" width="54" height="12" rx="2" fill="#4A5A65" opacity="0.6" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M152,410 L156,550" stroke="#F5E6C8" stroke-width="3" stroke-linecap="round" opacity="0.12"/>
+  </g>
+  
+  <!-- WHISKY BOTTLE - square, 3 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Body layer - square shape -->
+    <path d="M235,570 L235,400 Q235,380 245,370 L265,370 Q275,380 275,400 L275,570 Z" 
+          fill="#22333F" filter="url(#collageEdge)"/>
+    <!-- Neck layer -->
+    <path d="M248,370 L248,330 Q248,318 255,315 Q262,318 262,330 L262,370 Z" 
+          fill="#2A3B47" filter="url(#tornEdge)"/>
+    <!-- Label layer -->
+    <rect x="240" y="420" width="30" height="70" rx="2" fill="#4A5A65" opacity="0.6" transform="rotate(1 255 455)" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M245,380 L248,550" stroke="#E8B84A" stroke-width="3" stroke-linecap="round" opacity="0.15"/>
+  </g>
+  
+  <!-- ROCKS GLASS 2 - with whisky -->
+  <g filter="url(#bottleShadow)">
+    <!-- Glass body -->
+    <path d="M315,480 L320,560 L375,560 L380,480 Z" fill="#3A4D58" filter="url(#collageEdge)" opacity="0.7"/>
+    <!-- Liquid layer -->
+    <path d="M322,510 L325,555 L370,555 L373,510 Z" fill="#7A5A2A" opacity="0.45" filter="url(#tornEdge)"/>
+    <!-- Ice cubes - small paper pieces -->
+    <rect x="332" y="515" width="15" height="13" rx="2" fill="#5A6A75" opacity="0.5" transform="rotate(5 339 521)" filter="url(#tornEdge)"/>
+    <rect x="352" y="520" width="12" height="11" rx="2" fill="#6A7A85" opacity="0.45" transform="rotate(-6 358 525)" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M325,485 L327,550" stroke="#F5E6C8" stroke-width="2" stroke-linecap="round" opacity="0.16"/>
+  </g>
+  
+  <!-- TALL LIQUOR BOTTLE - 3 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Body layer -->
+    <path d="M395,570 Q388,520 390,430 Q392,360 400,320 Q406,295 418,290 Q430,295 436,320 Q444,360 446,430 Q448,520 442,570 Z" 
+          fill="#1C2835" filter="url(#collageEdge)"/>
+    <!-- Label layer -->
+    <rect x="400" y="400" width="36" height="80" rx="3" fill="#3A4A55" opacity="0.65" transform="rotate(-1 418 440)" filter="url(#tornEdge)"/>
+    <!-- Cork/cap layer -->
+    <ellipse cx="418" cy="292" rx="10" ry="8" fill="#5A4A3A" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M405,330 L408,540" stroke="#E8B84A" stroke-width="4" stroke-linecap="round" opacity="0.16"/>
+  </g>
+  
+  <!-- WINE GLASS - 2 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Bowl -->
+    <path d="M475,400 Q465,430 468,460 Q472,480 490,485 Q508,480 512,460 Q515,430 505,400 Q490,390 475,400 Z" 
+          fill="#3A4D58" filter="url(#collageEdge)" opacity="0.75"/>
+    <!-- Stem and base -->
+    <path d="M490,485 L490,550 M472,555 Q490,548 508,555" stroke="#3A4D58" stroke-width="6" fill="none" stroke-linecap="round" filter="url(#tornEdge)"/>
+    <!-- Wine layer -->
+    <path d="M478,420 Q470,445 474,465 Q480,478 490,480 Q500,478 506,465 Q510,445 502,420 Q490,412 478,420 Z" 
+          fill="#6A3A4A" opacity="0.5" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M482,415 L485,460" stroke="#F5E6C8" stroke-width="2" stroke-linecap="round" opacity="0.18"/>
+  </g>
+  
+  <!-- CHAMPAGNE BOTTLE - 3 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Body layer - distinctive shoulders -->
+    <path d="M545,570 Q538,530 540,460 Q542,400 550,360 Q556,335 562,325 Q568,318 578,318 Q588,318 594,325 Q600,335 606,360 Q614,400 616,460 Q618,530 612,570 Z" 
+          fill="#1F3528" filter="url(#collageEdge)"/>
+    <!-- Foil top layer -->
+    <path d="M565,325 Q568,305 578,300 Q588,305 591,325 Z" fill="#D4A03A" opacity="0.4" filter="url(#tornEdge)"/>
+    <!-- Label layer -->
+    <rect x="552" y="420" width="52" height="65" rx="3" fill="#4A5A55" opacity="0.6" transform="rotate(1 578 452)" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M558,350 L562,540" stroke="#E8B84A" stroke-width="4" stroke-linecap="round" opacity="0.14"/>
+  </g>
+  
+  <!-- ROCKS GLASS with ice - 2 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Glass body -->
+    <path d="M645,480 L650,560 L700,560 L705,480 Z" fill="#3A4D58" filter="url(#collageEdge)" opacity="0.7"/>
+    <!-- Liquid layer -->
+    <path d="M652,500 L655,555 L695,555 L698,500 Z" fill="#6A5A3A" opacity="0.4" filter="url(#tornEdge)"/>
+    <!-- Ice cubes - small paper pieces -->
+    <rect x="660" y="505" width="14" height="12" rx="2" fill="#5A6A75" opacity="0.5" transform="rotate(-8 667 511)" filter="url(#tornEdge)"/>
+    <rect x="678" y="510" width="12" height="10" rx="2" fill="#6A7A85" opacity="0.4" transform="rotate(5 684 515)" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M655,485 L657,550" stroke="#F5E6C8" stroke-width="2" stroke-linecap="round" opacity="0.15"/>
+  </g>
+  
+  <!-- BEER BOTTLE - 3 layers -->
+  <g filter="url(#bottleShadow)">
+    <!-- Body layer -->
+    <path d="M735,570 Q728,530 730,470 Q732,420 738,390 Q744,365 755,355 Q766,365 772,390 Q778,420 780,470 Q782,530 776,570 Z" 
+          fill="#2A3B35" filter="url(#collageEdge)"/>
+    <!-- Neck layer -->
+    <path d="M748,355 Q750,330 755,320 Q760,330 762,355 Z" fill="#3A4B45" filter="url(#tornEdge)"/>
+    <!-- Label layer - oval -->
+    <ellipse cx="755" cy="460" rx="22" ry="35" fill="#4A5A55" opacity="0.6" transform="rotate(-2 755 460)" filter="url(#tornEdge)"/>
+    <!-- Cap -->
+    <ellipse cx="755" cy="322" rx="8" ry="5" fill="#D4A03A" opacity="0.5" filter="url(#tornEdge)"/>
+    <!-- Highlight -->
+    <path d="M742,370 L745,540" stroke="#E8B84A" stroke-width="3" stroke-linecap="round" opacity="0.14"/>
+  </g>
+  
+  <!-- Second shelf - lower -->
+  <g filter="url(#tornEdge)">
+    <path d="M-10,575 Q150,568 300,580 Q450,570 600,582 Q750,572 810,578" 
+          stroke="#2A3E4A" stroke-width="10" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- BAR COUNTER - Large torn collage piece from middle to bottom -->
+  <!-- Counter top edge - torn paper -->
+  <g filter="url(#collageEdge)">
+    <path d="M-30,600 Q80,585 180,610 Q320,580 460,615 Q600,585 740,620 Q830,595 840,605 L840,650 Q720,660 560,645 Q400,665 240,648 Q80,668 -30,650 Z" 
+          fill="#3A4A55" filter="url(#layerShadow)"/>
+  </g>
+  
+  <!-- Counter top surface highlight -->
+  <g filter="url(#tornEdge)">
+    <path d="M-10,615 Q150,603 300,620 Q450,605 600,623 Q750,607 810,617" 
+          stroke="#D4A03A" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.22"/>
+  </g>
+  
+  <!-- Main counter body - large dark collage piece -->
+  <g filter="url(#collageEdge)">
+    <path d="M-40,640 Q100,625 250,650 Q450,620 650,655 Q800,630 850,645 L850,1250 L-40,1250 Z" 
+          fill="#0E1820" filter="url(#layerShadow)"/>
+  </g>
+  
+  <!-- Counter panels - vertical torn paper strips -->
+  <g filter="url(#tornEdge)" opacity="0.35">
+    <rect x="70" y="670" width="8" height="550" fill="#162535" rx="2"/>
+    <rect x="190" y="675" width="8" height="545" fill="#162535" rx="2"/>
+    <rect x="310" y="668" width="8" height="552" fill="#162535" rx="2"/>
+    <rect x="430" y="672" width="8" height="548" fill="#162535" rx="2"/>
+    <rect x="550" y="666" width="8" height="554" fill="#162535" rx="2"/>
+    <rect x="670" y="674" width="8" height="546" fill="#162535" rx="2"/>
+  </g>
+  
+  <!-- Counter wood grain - subtle torn horizontal lines -->
+  <g filter="url(#tornEdge)" opacity="0.1">
+    <path d="M0,720 Q200,715 400,725 Q600,718 800,728" stroke="#2A3E4A" stroke-width="2" fill="none"/>
+    <path d="M0,820 Q200,815 400,825 Q600,818 800,828" stroke="#2A3E4A" stroke-width="2" fill="none"/>
+    <path d="M0,930 Q200,925 400,935 Q600,928 800,938" stroke="#2A3E4A" stroke-width="2" fill="none"/>
+    <path d="M0,1050 Q200,1045 400,1055 Q600,1048 800,1058" stroke="#2A3E4A" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Decorative collage elements - organic shapes -->
+  <g filter="url(#collageEdge)" opacity="0.25">
+    <ellipse cx="100" cy="180" rx="50" ry="35" fill="#2F4F3A" transform="rotate(-15 100 180)"/>
+    <ellipse cx="700" cy="200" rx="60" ry="40" fill="#1F3528" transform="rotate(10 700 200)"/>
+  </g>
+  
+  <!-- Canvas texture overlay -->
+  <rect width="100%" height="100%" filter="url(#canvasTexture)" opacity="0.5"/>
+  
+  <!-- Paper grain overlay -->
+  <rect width="100%" height="100%" filter="url(#paperGrain)"/>
+  
+  <!-- Vignette -->
+  <rect width="100%" height="100%" fill="url(#vignette)"/>
+</svg>

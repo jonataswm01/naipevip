@@ -1,86 +1,175 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <!-- Filtro pictórico mais intenso -->
-    <filter id="paintEffect" x="-10%" y="-10%" width="120%" height="120%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+    <!-- TEXTURA DE TELA/CANVAS - Base pictorica -->
+    <filter id="canvasTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="5" seed="15" result="noise"/>
+      <feDiffuseLighting in="noise" lighting-color="#8B3A2F" surfaceScale="3" result="light">
+        <feDistantLight azimuth="135" elevation="45"/>
+      </feDiffuseLighting>
+      <feBlend in="SourceGraphic" in2="light" mode="multiply" result="canvas"/>
     </filter>
     
-    <!-- Filtro de grain sutil -->
-    <filter id="subtleGrain">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/>
-      <feColorMatrix type="saturate" values="0"/>
-      <feBlend in="SourceGraphic" mode="overlay"/>
+    <!-- TEXTURA DE PINCELADAS - Efeito de tinta -->
+    <filter id="brushStroke" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="6" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="0.5"/>
     </filter>
     
-    <!-- Gradiente principal - pôr do sol tardezinha -->
-    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#1E3A4C"/>
-      <stop offset="25%" style="stop-color:#2F4F3A"/>
-      <stop offset="45%" style="stop-color:#5C3D2E"/>
-      <stop offset="65%" style="stop-color:#8B3A2F"/>
-      <stop offset="85%" style="stop-color:#A85A4F"/>
-      <stop offset="100%" style="stop-color:#3D261D"/>
-    </linearGradient>
+    <!-- TEXTURA DE GRAIN INTENSO - Ruido pictorico -->
+    <filter id="paintGrain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="4" seed="3" stitchTiles="stitch" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.15 0"/>
+    </filter>
     
-    <!-- Gradiente radial para o sol -->
-    <radialGradient id="sunGlow" cx="70%" cy="35%" r="40%">
-      <stop offset="0%" style="stop-color:#E8B84A;stop-opacity:0.8"/>
-      <stop offset="40%" style="stop-color:#D4A03A;stop-opacity:0.4"/>
-      <stop offset="100%" style="stop-color:#D4A03A;stop-opacity:0"/>
-    </radialGradient>
+    <!-- TEXTURA DE PAPEL ENVELHECIDO -->
+    <filter id="agedPaper" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="5" seed="42" result="paper"/>
+      <feColorMatrix in="paper" type="saturate" values="0" result="bwPaper"/>
+      <feComponentTransfer in="bwPaper" result="contrast">
+        <feFuncR type="linear" slope="0.3" intercept="0.35"/>
+        <feFuncG type="linear" slope="0.3" intercept="0.35"/>
+        <feFuncB type="linear" slope="0.3" intercept="0.35"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="contrast" mode="multiply"/>
+    </filter>
+    
+    <!-- EFEITO OLEO/IMPASTO -->
+    <filter id="oilPaint" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="turbulence" baseFrequency="0.025" numOctaves="3" seed="8" result="turb"/>
+      <feDisplacementMap in="SourceGraphic" in2="turb" scale="12"/>
+      <feGaussianBlur stdDeviation="1"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" result="detail"/>
+      <feDisplacementMap in="SourceGraphic" in2="detail" scale="3"/>
+    </filter>
+    
+    <!-- Pattern de pinceladas horizontais -->
+    <pattern id="brushPattern" patternUnits="userSpaceOnUse" width="200" height="30">
+      <path d="M0,15 Q50,5 100,15 T200,15" stroke="#5C3D2E" stroke-width="8" fill="none" opacity="0.1" stroke-linecap="round"/>
+      <path d="M0,25 Q50,18 100,25 T200,25" stroke="#3D261D" stroke-width="4" fill="none" opacity="0.08" stroke-linecap="round"/>
+    </pattern>
+    
+    <!-- Pattern de textura organica -->
+    <pattern id="organicTexture" patternUnits="userSpaceOnUse" width="100" height="100">
+      <circle cx="20" cy="30" r="15" fill="#6B2A1F" opacity="0.05"/>
+      <circle cx="70" cy="60" r="20" fill="#5C3D2E" opacity="0.04"/>
+      <circle cx="45" cy="80" r="12" fill="#2F4F3A" opacity="0.03"/>
+      <ellipse cx="80" cy="20" rx="25" ry="10" fill="#1E3A4C" opacity="0.04" transform="rotate(15 80 20)"/>
+    </pattern>
   </defs>
   
-  <!-- Fundo principal gradiente -->
-  <rect width="100%" height="100%" fill="url(#heroGrad)"/>
+  <!-- CAMADA 1: Base com textura de tela -->
+  <rect width="100%" height="100%" fill="#3D261D"/>
+  <rect width="100%" height="100%" fill="url(#organicTexture)"/>
   
-  <!-- Brilho do sol -->
-  <rect width="100%" height="100%" fill="url(#sunGlow)"/>
-  
-  <!-- Camadas artísticas com efeito pictórico -->
-  <g filter="url(#paintEffect)">
-    <!-- Sol estilizado -->
-    <circle cx="560" cy="380" r="100" fill="#D4A03A" opacity="0.85"/>
-    <circle cx="560" cy="380" r="70" fill="#E8B84A" opacity="0.6"/>
-    <circle cx="560" cy="380" r="40" fill="#FDF8F0" opacity="0.4"/>
+  <!-- CAMADA 2: Manchas de fundo (estilo aquarela/oleo) -->
+  <g filter="url(#oilPaint)">
+    <!-- Mancha azul petroleo (ceu) -->
+    <ellipse cx="400" cy="150" rx="500" ry="250" fill="#1E3A4C" opacity="0.7"/>
+    <ellipse cx="200" cy="100" rx="300" ry="150" fill="#0F2535" opacity="0.5"/>
     
-    <!-- Nuvens estilizadas (pinceladas) -->
-    <ellipse cx="200" cy="250" rx="180" ry="40" fill="#A85A4F" opacity="0.3" transform="rotate(-5 200 250)"/>
-    <ellipse cx="600" cy="300" rx="150" ry="35" fill="#7D5E4F" opacity="0.25" transform="rotate(3 600 300)"/>
-    <ellipse cx="100" cy="350" rx="120" ry="30" fill="#8B3A2F" opacity="0.2" transform="rotate(-8 100 350)"/>
+    <!-- Mancha verde musgo (transicao) -->
+    <ellipse cx="600" cy="350" rx="400" ry="200" fill="#2F4F3A" opacity="0.6"/>
+    <ellipse cx="150" cy="400" rx="350" ry="180" fill="#1F3528" opacity="0.5"/>
     
-    <!-- Silhueta de paisagem urbana/natural -->
-    <path d="M0,900 
-             Q50,850 100,870 
-             L120,800 L140,870 
-             Q200,840 250,860 
-             L280,780 L300,850 L320,800 L340,860
-             Q400,830 450,850
-             L480,750 L500,820 L520,780 L550,850
-             Q600,820 650,840
-             L680,760 L700,830 L720,790 L750,850
-             Q780,830 800,850
-             L800,900 Z" 
-          fill="#3D261D" opacity="0.9"/>
+    <!-- Manchas terracota (atmosfera quente) -->
+    <ellipse cx="400" cy="550" rx="450" ry="250" fill="#8B3A2F" opacity="0.7"/>
+    <ellipse cx="700" cy="500" rx="300" ry="200" fill="#A85A4F" opacity="0.5"/>
+    <ellipse cx="100" cy="600" rx="350" ry="200" fill="#6B2A1F" opacity="0.6"/>
     
-    <!-- Segunda camada de silhueta -->
-    <path d="M0,950 
-             Q100,920 200,940 
-             Q300,910 400,930
-             Q500,900 600,920
-             Q700,890 800,910
-             L800,950 Z" 
-          fill="#1F3528" opacity="0.7"/>
-    
-    <!-- Elementos decorativos (figuras abstratas inspiradas em arte brasileira) -->
-    <ellipse cx="150" cy="700" rx="80" ry="120" fill="#A63D2D" opacity="0.15" transform="rotate(-10 150 700)"/>
-    <ellipse cx="650" cy="650" rx="100" ry="150" fill="#5C3D2E" opacity="0.12" transform="rotate(15 650 650)"/>
-    
-    <!-- Folhagens estilizadas -->
-    <path d="M50,1200 Q60,1000 40,800 Q80,750 50,700" stroke="#2F4F3A" stroke-width="12" fill="none" opacity="0.4" stroke-linecap="round"/>
-    <path d="M750,1200 Q760,1050 740,900 Q780,850 750,800" stroke="#1F3528" stroke-width="10" fill="none" opacity="0.35" stroke-linecap="round"/>
+    <!-- Manchas marrom (base) -->
+    <ellipse cx="400" cy="900" rx="500" ry="350" fill="#5C3D2E" opacity="0.8"/>
+    <ellipse cx="200" cy="1000" rx="400" ry="300" fill="#3D261D" opacity="0.7"/>
+    <ellipse cx="650" cy="1100" rx="350" ry="250" fill="#3D261D" opacity="0.9"/>
   </g>
   
-  <!-- Overlay de textura grain -->
-  <rect width="100%" height="100%" filter="url(#subtleGrain)" opacity="0.08"/>
+  <!-- CAMADA 3: Sol com efeito pictorico (Di Cavalcanti style) -->
+  <g filter="url(#brushStroke)">
+    <!-- Halo do sol - camadas de luz -->
+    <ellipse cx="580" cy="380" rx="180" ry="150" fill="#D4A03A" opacity="0.15"/>
+    <ellipse cx="580" cy="380" rx="140" ry="120" fill="#E8B84A" opacity="0.2"/>
+    <ellipse cx="580" cy="380" rx="100" ry="90" fill="#D4A03A" opacity="0.3"/>
+    
+    <!-- Sol principal - formas sobrepostas como pinceladas -->
+    <circle cx="580" cy="380" r="75" fill="#D4A03A" opacity="0.9"/>
+    <ellipse cx="570" cy="375" rx="65" ry="60" fill="#E8B84A" opacity="0.7"/>
+    <ellipse cx="590" cy="370" rx="50" ry="45" fill="#F5F0E8" opacity="0.4"/>
+    <circle cx="575" cy="365" r="30" fill="#FDF8F0" opacity="0.3"/>
+  </g>
+  
+  <!-- CAMADA 4: Nuvens estilizadas (pinceladas expressivas) -->
+  <g filter="url(#brushStroke)">
+    <!-- Nuvens altas -->
+    <path d="M50,200 Q150,170 250,190 Q350,160 400,180 Q300,200 200,210 Q100,220 50,200" fill="#A85A4F" opacity="0.25"/>
+    <path d="M500,180 Q600,150 700,170 Q750,190 700,200 Q600,210 500,200 Q480,190 500,180" fill="#7D5E4F" opacity="0.2"/>
+    
+    <!-- Nuvens medias -->
+    <path d="M0,280 Q100,250 200,270 Q250,290 200,300 Q100,310 0,290" fill="#8B3A2F" opacity="0.2"/>
+    <path d="M600,300 Q700,280 800,290 L800,320 Q700,330 600,315 Q580,305 600,300" fill="#5C3D2E" opacity="0.25"/>
+    
+    <!-- Reflexos de luz nas nuvens -->
+    <path d="M200,195 Q280,185 350,195" stroke="#E8B84A" stroke-width="3" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M550,165 Q620,155 680,165" stroke="#D4A03A" stroke-width="2" fill="none" opacity="0.12" stroke-linecap="round"/>
+  </g>
+  
+  <!-- CAMADA 5: Paisagem/Silhuetas (Portinari style - volumes) -->
+  <g filter="url(#brushStroke)">
+    <!-- Morros distantes -->
+    <path d="M0,750 Q100,680 200,720 Q350,650 450,700 Q550,660 650,710 Q750,680 800,720 L800,800 L0,800 Z" fill="#2F4F3A" opacity="0.5"/>
+    <path d="M0,780 Q150,730 300,760 Q450,720 550,750 Q700,720 800,760 L800,850 L0,850 Z" fill="#1F3528" opacity="0.6"/>
+    
+    <!-- Silhueta principal (cidade/natureza) -->
+    <path d="M0,850 Q30,820 60,835 L80,780 L100,830 Q130,810 160,825 L180,760 L200,820 L220,780 L240,830 Q280,800 320,820 L350,750 L380,810 L400,770 L430,820 Q480,790 520,810 L550,740 L580,800 L600,760 L640,815 Q700,780 750,805 L770,750 L800,800 L800,900 L0,900 Z" fill="#3D261D" opacity="0.85"/>
+    
+    <!-- Detalhes da silhueta (janelas, texturas) -->
+    <rect x="85" y="790" width="8" height="12" fill="#D4A03A" opacity="0.15"/>
+    <rect x="185" y="785" width="10" height="15" fill="#E8B84A" opacity="0.12"/>
+    <rect x="355" y="770" width="12" height="18" fill="#D4A03A" opacity="0.1"/>
+    <rect x="555" y="760" width="10" height="16" fill="#E8B84A" opacity="0.12"/>
+    <rect x="775" y="765" width="8" height="14" fill="#D4A03A" opacity="0.1"/>
+  </g>
+  
+  <!-- CAMADA 6: Elementos em primeiro plano (folhagens estilizadas) -->
+  <g filter="url(#brushStroke)">
+    <!-- Vegetacao esquerda -->
+    <path d="M0,1200 Q20,1000 10,850 Q40,800 20,750 Q50,700 30,650" stroke="#2F4F3A" stroke-width="20" fill="none" opacity="0.5" stroke-linecap="round"/>
+    <path d="M30,1200 Q50,1050 40,920 Q70,870 50,820" stroke="#1F3528" stroke-width="15" fill="none" opacity="0.4" stroke-linecap="round"/>
+    
+    <!-- Folhas abstratas -->
+    <ellipse cx="25" cy="700" rx="40" ry="15" fill="#2F4F3A" opacity="0.4" transform="rotate(-30 25 700)"/>
+    <ellipse cx="40" cy="750" rx="35" ry="12" fill="#4A6B52" opacity="0.3" transform="rotate(15 40 750)"/>
+    <ellipse cx="15" cy="800" rx="30" ry="10" fill="#1F3528" opacity="0.35" transform="rotate(-45 15 800)"/>
+    
+    <!-- Vegetacao direita -->
+    <path d="M800,1200 Q780,1000 790,850 Q760,800 780,750" stroke="#1F3528" stroke-width="18" fill="none" opacity="0.45" stroke-linecap="round"/>
+    <ellipse cx="775" cy="780" rx="35" ry="12" fill="#2F4F3A" opacity="0.35" transform="rotate(35 775 780)"/>
+    <ellipse cx="790" cy="830" rx="30" ry="10" fill="#4A6B52" opacity="0.3" transform="rotate(-20 790 830)"/>
+  </g>
+  
+  <!-- CAMADA 7: Figuras abstratas (inspiracao Tarsila/Di Cavalcanti) -->
+  <g filter="url(#oilPaint)" opacity="0.12">
+    <!-- Forma humana abstrata esquerda -->
+    <ellipse cx="120" cy="950" rx="60" ry="100" fill="#A63D2D"/>
+    <circle cx="120" cy="870" r="35" fill="#C65D4D"/>
+    
+    <!-- Forma humana abstrata direita -->
+    <ellipse cx="680" cy="980" rx="55" ry="90" fill="#8B3A2F"/>
+    <circle cx="680" cy="910" r="30" fill="#A85A4F"/>
+  </g>
+  
+  <!-- CAMADA 8: Textura de pinceladas horizontais -->
+  <rect width="100%" height="100%" fill="url(#brushPattern)" opacity="0.4"/>
+  
+  <!-- CAMADA 9: Grain/Ruido pictorico intenso -->
+  <rect width="100%" height="100%" filter="url(#paintGrain)"/>
+  
+  <!-- CAMADA 10: Textura de papel envelhecido -->
+  <rect width="100%" height="100%" filter="url(#agedPaper)" opacity="0.15"/>
+  
+  <!-- CAMADA 11: Vinheta sutil -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="0%" style="stop-color:#000000;stop-opacity:0"/>
+    <stop offset="100%" style="stop-color:#1F1510;stop-opacity:0.4"/>
+  </radialGradient>
+  <rect width="100%" height="100%" fill="url(#vignette)"/>
 </svg>

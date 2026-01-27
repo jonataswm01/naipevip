@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
   return (
-    <section className="bg-hero min-h-screen flex flex-col justify-end items-center px-6 pb-12 pt-20 texture-noise relative overflow-hidden">
-      {/* Overlay escuro para melhor contraste do texto */}
-      <div className="absolute inset-0 bg-gradient-to-t from-marrom-dark/80 via-marrom-dark/40 to-transparent z-0" />
+    <section className="bg-hero section-soft min-h-screen flex flex-col justify-end items-center px-6 pb-12 pt-20 texture-noise texture-canvas relative overflow-hidden">
+      {/* Overlay para contraste - mais sutil para não competir com a arte */}
+      <div className="absolute inset-0 bg-gradient-to-t from-marrom-dark/70 via-transparent to-transparent z-0" />
       
       {/* Conteúdo principal */}
       <motion.div 
