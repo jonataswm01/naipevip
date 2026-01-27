@@ -6,6 +6,7 @@ import SectionInfo from '@/components/SectionInfo';
 import SectionTickets from '@/components/SectionTickets';
 import SectionSecurity from '@/components/SectionSecurity';
 import SectionCTA from '@/components/SectionCTA';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -26,6 +27,8 @@ export default function Home() {
       <SectionSecurity />
       {/* Seção 8 - CTA Final */}
       <SectionCTA />
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }
