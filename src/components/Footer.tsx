@@ -34,7 +34,7 @@ export default function Footer() {
       ref={ref}
       className="relative overflow-hidden bg-[#3D261D] pt-10 pb-24"
     >
-      {/* TARDEZINHA - Marca d'água gigante */}
+      {/* NAIPE VIP - Marca d'água gigante */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <span 
           className="font-titulo text-off-white/[0.05] uppercase select-none text-center font-bold"
@@ -44,7 +44,7 @@ export default function Footer() {
             lineHeight: 1,
           }}
         >
-          TARDEZINHA
+          NAIPE VIP
         </span>
       </div>
 

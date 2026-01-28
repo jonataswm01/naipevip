@@ -121,6 +121,14 @@ export default function PagamentoPix({
 
       setPedidoData(data);
 
+      // Debug: Log dos dados recebidos
+      console.log("=== DEBUG PÁGINA PIX ===");
+      console.log("Pagamento existe:", !!data.pagamento);
+      if (data.pagamento) {
+        console.log("pix_qr_code:", data.pagamento.pix_qr_code ? `${data.pagamento.pix_qr_code.substring(0, 50)}...` : "NULL/VAZIO");
+        console.log("pix_qr_code_base64:", data.pagamento.pix_qr_code_base64 ? `${data.pagamento.pix_qr_code_base64.substring(0, 50)}...` : "NULL/VAZIO");
+      }
+
       // Se pago, redirecionar para sucesso
       if (data.pedido.status === "pago" || data.pagamento?.status === "approved") {
         router.push(`/compra/sucesso/${pedidoId}`);

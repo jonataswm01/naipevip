@@ -269,27 +269,41 @@ export async function obterQrCodePix(
   }
 
   try {
-    const response = await fetch(`${baseUrl}/payments/${paymentId}/pixQrCode`, {
+    const url = `${baseUrl}/payments/${paymentId}/pixQrCode`;
+    console.log("Buscando QR Code PIX:", url);
+    
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         "access_token": apiKey,
       },
     });
 
+    console.log("Response status:", response.status);
     const data = await response.json();
+    console.log("Response data:", JSON.stringify(data, null, 2));
 
     if (!response.ok) {
       console.error("Erro ao obter QR Code Asaas:", data);
       return { 
         success: false, 
-        error: data.errors?.[0]?.description || "Erro ao obter QR Code" 
+        error: data.errors?.[0]?.description || data.message || `Erro HTTP ${response.status}: Erro ao obter QR Code` 
+      };
+    }
+
+    // Validar se os dados necessários estão presentes
+    if (!data.payload || !data.encodedImage) {
+      console.error("QR Code retornado sem payload ou encodedImage:", data);
+      return {
+        success: false,
+        error: "QR Code retornado sem dados completos"
       };
     }
 
     return { success: true, data: data as AsaasPixQrCode };
   } catch (error) {
     console.error("Erro ao conectar com Asaas:", error);
-    return { success: false, error: "Erro de conexão com Asaas" };
+    return { success: false, error: `Erro de conexão com Asaas: ${error instanceof Error ? error.message : "Desconhecido"}` };
   }
 }
 

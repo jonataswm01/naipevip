@@ -344,7 +344,7 @@ CREATE TRIGGER trigger_update_lote_quantidade
   EXECUTE FUNCTION update_lote_quantidade_vendida();
 
 -- =============================================
--- SEED: Evento inicial (Tardezinha Pré-Carnaval)
+-- SEED: Evento inicial (Naipe VIP)
 -- Ajuste a data conforme necessário
 -- =============================================
 INSERT INTO eventos (
@@ -359,10 +359,10 @@ INSERT INTO eventos (
   local_endereco,
   classificacao
 ) VALUES (
-  'Tardezinha Pré-Carnaval',
-  'tardezinha-pre-carnaval',
+  'Naipe VIP',
+  'naipe-vip',
   'Uma festa pra curtir o pôr do sol e atravessar a noite no clima do carnaval.',
-  '2026-02-14', -- Ajuste a data do evento
+  '2026-02-06', -- Ajuste a data do evento
   '16:00',
   'Local Secreto',
   'Região Central',
@@ -384,7 +384,7 @@ SELECT
   100,
   4,
   1
-FROM eventos WHERE slug = 'tardezinha-pre-carnaval';
+FROM eventos WHERE slug = 'naipe-vip';
 
 INSERT INTO lotes (evento_id, nome, descricao, preco, quantidade_total, limite_por_usuario, ordem) 
 SELECT 
@@ -395,7 +395,7 @@ SELECT
   150,
   4,
   2
-FROM eventos WHERE slug = 'tardezinha-pre-carnaval';
+FROM eventos WHERE slug = 'naipe-vip';
 
 INSERT INTO lotes (evento_id, nome, descricao, preco, quantidade_total, limite_por_usuario, ordem) 
 SELECT 
@@ -406,7 +406,7 @@ SELECT
   200,
   4,
   3
-FROM eventos WHERE slug = 'tardezinha-pre-carnaval';
+FROM eventos WHERE slug = 'naipe-vip';
 
 -- =============================================
 -- FIM DO SCRIPT

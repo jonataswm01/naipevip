@@ -208,33 +208,72 @@ export async function POST(request: NextRequest) {
     const cobranca = cobrancaResult.data;
     console.log("Cobrança Asaas criada:", cobranca.id);
 
-    // 2. Obter QR Code PIX
-    const qrCodeResult = await obterQrCodePix(cobranca.id);
-
-    if (!qrCodeResult.success) {
-      console.error("Erro ao obter QR Code Asaas:", qrCodeResult.error);
-      // Não reverter, a cobrança foi criada
+    // 2. Obter QR Code PIX (com retry - às vezes o Asaas demora alguns segundos)
+    let pixData = null;
+    let qrCodeResult = null;
+    
+    // Tentar até 3 vezes com delay de 1 segundo entre tentativas
+    for (let tentativa = 1; tentativa <= 3; tentativa++) {
+      console.log(`Tentativa ${tentativa}/3 de obter QR Code PIX...`);
+      
+      qrCodeResult = await obterQrCodePix(cobranca.id);
+      
+      if (qrCodeResult.success) {
+        pixData = qrCodeResult.data;
+        console.log("QR Code PIX obtido com sucesso!");
+        break;
+      }
+      
+      console.error(`Tentativa ${tentativa} falhou:`, qrCodeResult.error);
+      
+      // Aguardar 1 segundo antes da próxima tentativa (exceto na última)
+      if (tentativa < 3) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
 
-    const pixData = qrCodeResult.success ? qrCodeResult.data : null;
+    if (!pixData) {
+      console.error("Erro ao obter QR Code Asaas após 3 tentativas:", qrCodeResult?.error);
+      // Não reverter, a cobrança foi criada, mas vamos retornar erro
+      return NextResponse.json(
+        { error: `Cobrança criada, mas não foi possível gerar o QR Code. Tente novamente ou entre em contato. Erro: ${qrCodeResult?.error || "Desconhecido"}` },
+        { status: 500 }
+      );
+    }
 
     // Criar registro de pagamento com dados do Asaas
-    const { error: pagamentoError } = await supabase.from("pagamentos").insert({
+    const pagamentoData: Record<string, unknown> = {
       pedido_id: pedido.id,
       mp_payment_id: cobranca.id, // Usando campo existente para ID do Asaas
       metodo: "pix",
       status: "pending",
       valor: valorTotal,
-      pix_qr_code: pixData?.payload || "",
-      pix_qr_code_base64: pixData?.encodedImage 
-        ? `data:image/png;base64,${pixData.encodedImage}`
-        : "",
       pix_expiration: expiresAt.toISOString(),
       raw_response: cobranca,
-    });
+    };
+
+    // Só adicionar campos PIX se tiver dados (não salvar strings vazias)
+    if (pixData?.payload) {
+      pagamentoData.pix_qr_code = pixData.payload;
+    }
+    if (pixData?.encodedImage) {
+      pagamentoData.pix_qr_code_base64 = `data:image/png;base64,${pixData.encodedImage}`;
+    }
+
+    console.log("=== DEBUG SALVANDO PAGAMENTO ===");
+    console.log("pix_qr_code length:", pagamentoData.pix_qr_code.length);
+    console.log("pix_qr_code_base64 length:", pagamentoData.pix_qr_code_base64.length);
+    console.log("pix_qr_code (primeiros 50 chars):", pagamentoData.pix_qr_code.substring(0, 50));
+    console.log("pix_qr_code_base64 (primeiros 50 chars):", pagamentoData.pix_qr_code_base64.substring(0, 50));
+
+    const { data: pagamentoInserido, error: pagamentoError } = await supabase.from("pagamentos").insert(pagamentoData).select().single();
 
     if (pagamentoError) {
       console.error("Erro ao criar pagamento:", pagamentoError);
+    } else {
+      console.log("Pagamento salvo com sucesso! ID:", pagamentoInserido?.id);
+      console.log("pix_qr_code salvo:", pagamentoInserido?.pix_qr_code ? `${pagamentoInserido.pix_qr_code.substring(0, 50)}...` : "NULL/VAZIO");
+      console.log("pix_qr_code_base64 salvo:", pagamentoInserido?.pix_qr_code_base64 ? `${pagamentoInserido.pix_qr_code_base64.substring(0, 50)}...` : "NULL/VAZIO");
     }
 
     // Retornar dados do pedido

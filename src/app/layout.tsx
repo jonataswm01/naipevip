@@ -17,8 +17,8 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Naipe VIP - Tardezinha Pré-Carnaval",
-  description: "Garanta seu ingresso para a melhor tardezinha pré-carnaval",
+  title: "Naipe VIP",
+  description: "Garanta seu ingresso para o Naipe VIP",
 };
 
 export default function RootLayout({

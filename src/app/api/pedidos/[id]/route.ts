@@ -74,8 +74,29 @@ export async function GET(
     }
 
     // Formatar resposta
-    const pagamento = pedido.pagamentos?.[0] || null;
+    // Obs: como `pagamentos.pedido_id` é UNIQUE, o Supabase pode retornar a relação como
+    // objeto (1:1) em vez de array (1:n). Então suportamos ambos os formatos.
+    const pagamentosRel = (pedido as any).pagamentos;
+    const pagamento = Array.isArray(pagamentosRel)
+      ? pagamentosRel[0] || null
+      : pagamentosRel || null;
     const itens = pedido.pedido_itens || [];
+
+    // Debug: Log do pagamento
+    console.log("=== DEBUG PEDIDO ===");
+    console.log("Pagamento encontrado:", !!pagamento);
+    if (pagamento) {
+      console.log(
+        "pix_qr_code:",
+        pagamento.pix_qr_code ? `${pagamento.pix_qr_code.substring(0, 50)}...` : "NULL/VAZIO"
+      );
+      console.log(
+        "pix_qr_code_base64:",
+        pagamento.pix_qr_code_base64
+          ? `${pagamento.pix_qr_code_base64.substring(0, 50)}...`
+          : "NULL/VAZIO"
+      );
+    }
 
     return NextResponse.json({
       pedido: {

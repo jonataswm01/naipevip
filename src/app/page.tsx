@@ -26,7 +26,7 @@ export default function Home() {
         <SectionInfo />
         {/* Seção 5 - Bar & Ambiente */}
         <SectionBar />
-        {/* Seção 6 - O Que É a Tardezinha */}
+        {/* Seção 6 - O Que É o Naipe VIP */}
         <SectionAbout />
         {/* Seção 7 - Música & Experiência */}
         <SectionMusic />

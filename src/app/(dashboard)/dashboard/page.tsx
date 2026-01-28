@@ -255,7 +255,7 @@ export default function DashboardPage() {
             Garanta seu ingresso!
           </h3>
           <p className="text-off-white-soft/80 font-texto text-sm mb-4">
-            Não fique de fora da Tardezinha Pré-Carnaval
+            Não fique de fora do Naipe VIP
           </p>
           <Link
             href="/#ingressos"

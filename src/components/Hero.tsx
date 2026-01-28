@@ -23,18 +23,8 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Tardezinha
+          Naipe VIP
         </motion.h1>
-        
-        {/* Identificação Pré-Carnaval */}
-        <motion.p 
-          className="font-titulo text-xl sm:text-2xl md:text-3xl text-amarelo uppercase tracking-widest mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          Pré-Carnaval
-        </motion.p>
         
         {/* Subheadline */}
         <motion.p 

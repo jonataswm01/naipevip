@@ -178,13 +178,62 @@ export default function ComprasSucesso({
 
   const { pedido, evento, itens } = pedidoData;
 
-  // Formatar data
-  const dataEvento = new Date(evento.data_evento);
+  // Formatar data corretamente (evitando problemas de timezone)
+  const dataEventoStr = evento.data_evento.split("T")[0]; // Pega apenas a data (YYYY-MM-DD)
+  const [ano, mes, dia] = dataEventoStr.split("-").map(Number);
+  const dataEvento = new Date(ano, mes - 1, dia); // mes - 1 porque Date usa 0-11
+  
   const dataFormatada = dataEvento.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
+  
+  // Capitalizar primeira letra
+  const dataFormatadaCapitalizada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+
+  // Formatar nome do ingresso de forma mais clara
+  const formatarIngresso = (nomeLote: string, quantidade: number): string => {
+    // Remove "º", "ª", "lote", "Lote" e espaços extras, e simplifica
+    const nomeLimpo = nomeLote
+      .replace(/[ºª]/g, "")
+      .replace(/\b(lote|Lote)\b/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    
+    // Se o nome limpo estiver vazio ou só tiver números, usa apenas "Ingresso"
+    if (!nomeLimpo || /^\d+$/.test(nomeLimpo)) {
+      return quantidade > 1 ? `${quantidade}x Ingresso` : "Ingresso";
+    }
+    
+    // Se já tem "Ingresso" no nome, mantém; senão, adiciona
+    if (nomeLimpo.toLowerCase().includes("ingresso")) {
+      return quantidade > 1 ? `${quantidade}x ${nomeLimpo}` : nomeLimpo;
+    }
+    return quantidade > 1 ? `${quantidade}x ${nomeLimpo} - Ingresso` : `${nomeLimpo} - Ingresso`;
+  };
+
+  // Determinar se deve usar local do evento ou localEvento
+  // Sempre prioriza os dados do evento se o localEvento for "Local Secreto" ou não existir
+  const localParaExibir = 
+    evento.local_nome && 
+    evento.local_endereco && 
+    evento.local_nome !== "Local Secreto" &&
+    evento.local_endereco !== "Endereço completo revelado após a compra"
+      ? {
+          nome: evento.local_nome,
+          endereco: evento.local_endereco,
+          bairro: evento.local_bairro || "",
+          cidade: evento.local_cidade || "",
+          mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            `${evento.local_endereco}, ${evento.local_bairro || ""}, ${evento.local_cidade || ""}`
+          )}`,
+        }
+      : localEvento && 
+        localEvento.nome !== "Local Secreto" && 
+        localEvento.endereco !== "Endereço completo revelado após a compra"
+      ? localEvento
+      : null;
 
   return (
     <>
@@ -255,12 +304,12 @@ export default function ComprasSucesso({
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2 text-off-white-soft/70">
               <span className="text-amarelo/70">{Icons.calendar}</span>
-              <span className="font-texto capitalize">{dataFormatada}</span>
+              <span className="font-texto">{dataFormatadaCapitalizada}</span>
             </div>
 
             <div className="flex justify-between items-center py-2 border-t border-marrom">
               <span className="font-texto text-off-white-soft">
-                {itens.map((i) => `${i.quantidade}x ${i.lote.nome}`).join(", ")}
+                {itens.map((i) => formatarIngresso(i.lote.nome, i.quantidade)).join(", ")}
               </span>
               <span className="font-titulo text-amarelo">
                 R$ {pedido.valor_total.toFixed(2).replace(".", ",")}
@@ -269,8 +318,8 @@ export default function ComprasSucesso({
           </div>
         </motion.div>
 
-        {/* Local Revelado */}
-        {localEvento && (
+        {/* Local do Evento */}
+        {localParaExibir && (
           <motion.div
             className="bg-verde-musgo/20 border border-verde-musgo/50 rounded-xl p-5 mb-6 text-left"
             initial={{ opacity: 0, y: 20 }}
@@ -284,15 +333,19 @@ export default function ComprasSucesso({
               </span>
             </div>
 
-            <p className="font-titulo text-off-white mb-1">{localEvento.nome}</p>
+            <p className="font-titulo text-off-white mb-1">{localParaExibir.nome}</p>
             <p className="font-texto text-sm text-off-white-soft/70 mb-3">
-              {localEvento.endereco}
-              <br />
-              {localEvento.bairro} - {localEvento.cidade}
+              {localParaExibir.endereco}
+              {localParaExibir.bairro && (
+                <>
+                  <br />
+                  {localParaExibir.bairro} - {localParaExibir.cidade}
+                </>
+              )}
             </p>
 
             <a
-              href={localEvento.mapsUrl}
+              href={localParaExibir.mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 bg-verde-musgo text-white font-texto text-sm rounded-lg hover:bg-verde-musgo-light transition-colors"

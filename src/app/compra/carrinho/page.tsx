@@ -339,7 +339,7 @@ function CarrinhoContent() {
                 Naipe VIP
               </h1>
               <p className="font-texto text-sm text-amarelo">
-                Tardezinha Pré-Carnaval
+                Naipe VIP
               </p>
             </div>
           </div>
