@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthCard, AuthButton, InputField, PasswordInput } from "@/components/auth";
 
 type LoginMethod = "email" | "phone";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
@@ -201,5 +201,28 @@ export default function LoginPage() {
         </Link>
       </p>
     </AuthCard>
+  );
+}
+
+function LoginFallback() {
+  return (
+    <AuthCard
+      title="Entrar na sua conta"
+      subtitle="Bem-vindo de volta! Faça login para continuar."
+    >
+      <div className="animate-pulse space-y-4">
+        <div className="h-12 bg-marrom rounded-lg" />
+        <div className="h-12 bg-marrom rounded-lg" />
+        <div className="h-12 bg-marrom rounded-lg" />
+      </div>
+    </AuthCard>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </Suspense>
   );
 }

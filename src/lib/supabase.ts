@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database";
 
 // Configuração do Supabase
 const supabaseUrl = process.env.SUPABASE_URL!;
@@ -7,7 +6,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 // Cliente para uso no servidor (API Routes)
 // Usa a Service Role Key para bypass de RLS quando necessário
-export const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey, {
+export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,

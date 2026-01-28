@@ -8,12 +8,16 @@ import SectionSecurity from '@/components/SectionSecurity';
 import SectionCTA from '@/components/SectionCTA';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
+import FloatingCTA from '@/components/FloatingCTA';
 
 export default function Home() {
   return (
     <>
       {/* Navbar flutuante - aparece após o primeiro scroll */}
       <NavBar />
+      
+      {/* Botão flutuante de compra */}
+      <FloatingCTA />
 
       <main className="min-h-screen">
         {/* Seção 1 - Hero */}

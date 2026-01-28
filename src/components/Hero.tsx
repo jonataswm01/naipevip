@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function Hero() {
   return (
@@ -85,9 +86,12 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.7 }}
         >
-          <button className="bg-amarelo hover:bg-amarelo-light text-marrom-dark font-titulo text-lg sm:text-xl uppercase tracking-wide px-8 sm:px-10 py-4 sm:py-5 rounded-lg transition-all shadow-warm hover:shadow-glow hover:scale-105 active:scale-95">
+          <Link 
+            href="/compra/carrinho"
+            className="inline-block bg-amarelo hover:bg-amarelo-light text-marrom-dark font-titulo text-lg sm:text-xl uppercase tracking-wide px-8 sm:px-10 py-4 sm:py-5 rounded-lg transition-all shadow-warm hover:shadow-glow hover:scale-105 active:scale-95"
+          >
             Garantir meu ingresso
-          </button>
+          </Link>
         </motion.div>
       </motion.div>
       

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import Link from 'next/link';
 
 export default function SectionCTA() {
   const { ref, inView } = useInView({
@@ -67,25 +68,27 @@ export default function SectionCTA() {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.8, ease: 'easeOut' }}
         >
-          <motion.button 
-            className="bg-amarelo hover:bg-amarelo-light text-marrom-dark font-titulo text-lg sm:text-xl uppercase tracking-wide px-10 sm:px-12 py-4 sm:py-5 rounded-lg transition-colors shadow-warm"
-            animate={{
-              boxShadow: [
-                '0 4px 30px rgba(212, 160, 58, 0.3)',
-                '0 4px 40px rgba(212, 160, 58, 0.5)',
-                '0 4px 30px rgba(212, 160, 58, 0.3)',
-              ],
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Garantir meu ingresso
-          </motion.button>
+          <Link href="/compra/carrinho">
+            <motion.span 
+              className="inline-block bg-amarelo hover:bg-amarelo-light text-marrom-dark font-titulo text-lg sm:text-xl uppercase tracking-wide px-10 sm:px-12 py-4 sm:py-5 rounded-lg transition-colors shadow-warm cursor-pointer"
+              animate={{
+                boxShadow: [
+                  '0 4px 30px rgba(212, 160, 58, 0.3)',
+                  '0 4px 40px rgba(212, 160, 58, 0.5)',
+                  '0 4px 30px rgba(212, 160, 58, 0.3)',
+                ],
+              }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Garantir meu ingresso
+            </motion.span>
+          </Link>
         </motion.div>
       </motion.div>
     </section>
