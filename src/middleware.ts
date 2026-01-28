@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Rotas que requerem autenticação
-const protectedRoutes = ["/dashboard"];
+const protectedRoutes = [
+  "/dashboard",
+  "/compra/pix",
+  "/compra/sucesso",
+];
 
 // Rotas de autenticação (redireciona para dashboard se já logado)
 const authRoutes = ["/login", "/cadastro"];
@@ -35,5 +39,11 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/cadastro"],
+  matcher: [
+    "/dashboard/:path*",
+    "/compra/pix/:path*",
+    "/compra/sucesso/:path*",
+    "/login",
+    "/cadastro",
+  ],
 };

@@ -72,9 +72,16 @@ export default function DashboardLayout({
       if (response.ok) {
         const data = await response.json();
         setUser(data.usuario);
+      } else {
+        // Não autenticado ou sessão inválida - redirecionar para login
+        router.push("/login?redirect=" + encodeURIComponent(pathname));
+        return;
       }
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
+      // Erro de conexão - redirecionar para login por segurança
+      router.push("/login");
+      return;
     } finally {
       setLoading(false);
     }
