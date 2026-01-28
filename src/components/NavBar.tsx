@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface NavItem {
   id: string;
@@ -9,33 +11,61 @@ interface NavItem {
   icon: string;
   href: string;
   highlight?: boolean;
+  isExternal?: boolean;
 }
 
-const navItems: NavItem[] = [
-  {
-    id: 'inicio',
-    label: 'Início',
-    icon: '🏠',
-    href: '#',
-  },
-  {
-    id: 'ingressos',
-    label: 'Ingressos',
-    icon: '🎟️',
-    href: '#ingressos',
-    highlight: true,
-  },
-  {
-    id: 'entrar',
-    label: 'Entrar',
-    icon: '👤',
-    href: '#',
-  },
-];
-
 export default function NavBar() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  // Verifica se usuário está logado
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          setIsLoggedIn(true);
+          setUserName(data.usuario.nome.split(' ')[0]); // Primeiro nome
+        } else {
+          setIsLoggedIn(false);
+          setUserName('');
+        }
+      } catch {
+        setIsLoggedIn(false);
+        setUserName('');
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Itens de navegação dinâmicos
+  const navItems: NavItem[] = [
+    {
+      id: 'inicio',
+      label: 'Início',
+      icon: '🏠',
+      href: '#',
+    },
+    {
+      id: 'ingressos',
+      label: 'Ingressos',
+      icon: '🎟️',
+      href: '#ingressos',
+      highlight: true,
+    },
+    {
+      id: 'entrar',
+      label: isLoggedIn ? userName : 'Entrar',
+      icon: '👤',
+      href: isLoggedIn ? '/dashboard' : '/login',
+      isExternal: true,
+    },
+  ];
 
   // Detecta scroll para mostrar/ocultar navbar
   useEffect(() => {
@@ -79,17 +109,24 @@ export default function NavBar() {
   }, []);
 
   // Smooth scroll para âncoras
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
+    // Se for link externo (login/dashboard), usar navegação normal
+    if (item.isExternal) {
+      e.preventDefault();
+      router.push(item.href);
+      return;
+    }
+
     e.preventDefault();
 
-    if (href === '#') {
+    if (item.href === '#') {
       // Scroll para o topo
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setActiveSection('inicio');
       return;
     }
 
-    const targetId = href.replace('#', '');
+    const targetId = item.href.replace('#', '');
     const element = document.getElementById(targetId);
 
     if (element) {
@@ -119,7 +156,7 @@ export default function NavBar() {
                 <motion.a
                   key={item.id}
                   href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
+                  onClick={(e) => handleNavClick(e, item)}
                   className={`
                     relative flex items-center gap-1.5 px-4 py-2.5 rounded-full
                     font-titulo text-xs uppercase tracking-wider
@@ -139,7 +176,7 @@ export default function NavBar() {
                   <span className="text-sm">{item.icon}</span>
                   
                   {/* Label */}
-                  <span>{item.label}</span>
+                  <span className="max-w-[60px] truncate">{item.label}</span>
 
                   {/* Indicador de ativo (glow sutil) */}
                   {isActive && !isHighlight && (

@@ -18,18 +18,18 @@ export default function Home() {
       <main className="min-h-screen">
         {/* Seção 1 - Hero */}
         <Hero />
-        {/* Seção 2 - O Que É a Tardezinha */}
-        <SectionAbout />
-        {/* Seção 3 - Música & Experiência */}
-        <SectionMusic />
-        {/* Seção 4 - Bar & Ambiente */}
-        <SectionBar />
-        {/* Seção 5 - Informações do Evento */}
-        <SectionInfo />
-        {/* Seção 6 - Ingressos */}
+        {/* Seção 2 - Ingressos (Conversão direta) */}
         <SectionTickets />
-        {/* Seção 7 - Segurança & Simplicidade */}
+        {/* Seção 3 - Segurança & Simplicidade (Remove objeções) */}
         <SectionSecurity />
+        {/* Seção 4 - Informações do Evento */}
+        <SectionInfo />
+        {/* Seção 5 - Bar & Ambiente */}
+        <SectionBar />
+        {/* Seção 6 - O Que É a Tardezinha */}
+        <SectionAbout />
+        {/* Seção 7 - Música & Experiência */}
+        <SectionMusic />
         {/* Seção 8 - CTA Final */}
         <SectionCTA />
         {/* Footer */}
