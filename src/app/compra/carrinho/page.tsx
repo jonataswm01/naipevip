@@ -39,96 +39,42 @@ interface CarrinhoData {
 }
 
 // =============================================
-// ICONS
-// =============================================
-
-const Icons = {
-  ticket: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-    </svg>
-  ),
-  calendar: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  ),
-  clock: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-  location: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  ),
-  chevronDown: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-    </svg>
-  ),
-  minus: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-    </svg>
-  ),
-  plus: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-    </svg>
-  ),
-  lock: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-    </svg>
-  ),
-  check: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  ),
-  alert: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-    </svg>
-  ),
-  spinner: (
-    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-    </svg>
-  ),
-};
-
-// =============================================
-// STORAGE KEYS
+// STORAGE
 // =============================================
 
 const CARRINHO_KEY = "naipevip_carrinho";
 const CARRINHO_EXPIRATION = 30 * 60 * 1000; // 30 minutos
 
 // =============================================
-// MAIN COMPONENT
+// CARRINHO CONTENT
 // =============================================
 
 function CarrinhoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const loteParam = searchParams.get("lote");
+  const qtdParam = searchParams.get("qtd");
 
-  // States
+  // Estados
   const [evento, setEvento] = useState<Evento | null>(null);
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loteSelecionado, setLoteSelecionado] = useState<string>("");
-  const [quantidade, setQuantidade] = useState(1);
+  // Mapeia quantidade da URL para opções válidas (1, 2 ou 4)
+  const getQuantidadeInicial = () => {
+    if (!qtdParam) return 1;
+    const qtd = parseInt(qtdParam);
+    if (qtd >= 4) return 4;
+    if (qtd >= 2) return 2;
+    return 1;
+  };
+  const [quantidade, setQuantidade] = useState(getQuantidadeInicial());
   const [loading, setLoading] = useState(true);
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [dropdownAberto, setDropdownAberto] = useState(false);
+  const [aceitouTermos, setAceitouTermos] = useState(false);
+  const [mostrarTermos, setMostrarTermos] = useState(false);
 
-  // Fetch lotes
+  // Buscar lotes
   const fetchLotes = useCallback(async () => {
     try {
       const response = await fetch("/api/lotes");
@@ -142,18 +88,24 @@ function CarrinhoContent() {
       setEvento(data.evento);
       setLotes(data.lotes);
 
-      // Verificar carrinho salvo
+      // Verificar carrinho salvo no sessionStorage
       const carrinhoSalvo = sessionStorage.getItem(CARRINHO_KEY);
       if (carrinhoSalvo) {
         const dados: CarrinhoData = JSON.parse(carrinhoSalvo);
         if (Date.now() - dados.timestamp < CARRINHO_EXPIRATION) {
-          // Verificar se o lote ainda existe e está disponível
           const loteExiste = data.lotes.find(
             (l: Lote) => l.id === dados.loteId && l.disponivel
           );
           if (loteExiste) {
             setLoteSelecionado(dados.loteId);
-            setQuantidade(Math.min(dados.quantidade, loteExiste.limite_por_usuario));
+            // Só usar quantidade do storage se não veio pela URL
+            if (!qtdParam) {
+              // Mapeia para opções válidas (1, 2 ou 4)
+              const qtdSalva = dados.quantidade;
+              if (qtdSalva >= 4) setQuantidade(4);
+              else if (qtdSalva >= 2) setQuantidade(2);
+              else setQuantidade(1);
+            }
             return;
           }
         }
@@ -181,37 +133,36 @@ function CarrinhoContent() {
     } finally {
       setLoading(false);
     }
-  }, [loteParam]);
+  }, [loteParam, qtdParam]);
 
   useEffect(() => {
     fetchLotes();
   }, [fetchLotes]);
 
-  // Lote atual selecionado
+  // Dados calculados
   const loteAtual = lotes.find((l) => l.id === loteSelecionado);
-  const limiteAtual = loteAtual?.limite_por_usuario || 4;
-  const subtotal = loteAtual ? loteAtual.preco * quantidade : 0;
-
-  // Handlers
-  const handleQuantidadeChange = (delta: number) => {
-    const novaQuantidade = quantidade + delta;
-    if (novaQuantidade >= 1 && novaQuantidade <= limiteAtual) {
-      setQuantidade(novaQuantidade);
-    }
+  
+  // Preços fixos por quantidade (com desconto para pacotes)
+  const precosFixos: Record<number, number> = {
+    1: 20,  // R$ 20
+    2: 35,  // R$ 35 (economia de R$ 5)
+    4: 60,  // R$ 60 (economia de R$ 20)
   };
+  
+  const precoUnitario = precosFixos[1]; // R$ 20 por ingresso
+  const subtotal = precosFixos[quantidade] || precoUnitario * quantidade;
+  const economiaTotal = (precoUnitario * quantidade) - subtotal;
 
-  const handleLoteChange = (loteId: string) => {
-    setLoteSelecionado(loteId);
-    setDropdownAberto(false);
-    // Reset quantidade se exceder limite do novo lote
-    const novoLote = lotes.find((l) => l.id === loteId);
-    if (novoLote && quantidade > novoLote.limite_por_usuario) {
-      setQuantidade(novoLote.limite_por_usuario);
-    }
+  // Opções de quantidade disponíveis
+  const quantidadeOpcoes = [1, 2, 4];
+
+  // Handler de quantidade
+  const handleQuantidadeSelect = (qtd: number) => {
+    setQuantidade(qtd);
   };
 
   const handleContinuar = async () => {
-    if (!loteAtual || !evento) return;
+    if (!loteAtual || !evento || !aceitouTermos) return;
 
     setProcessando(true);
     setErro(null);
@@ -221,7 +172,7 @@ function CarrinhoContent() {
       const authResponse = await fetch("/api/auth/me");
 
       if (!authResponse.ok) {
-        // Não logado - salvar carrinho e redirecionar
+        // Não logado - salvar carrinho e redirecionar para login
         sessionStorage.setItem(
           CARRINHO_KEY,
           JSON.stringify({
@@ -263,324 +214,351 @@ function CarrinhoContent() {
     }
   };
 
-  // Loading state
+  // =============================================
+  // ESTADOS DE LOADING / ERRO / ESGOTADO
+  // =============================================
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 rounded-full border-2 border-amarelo border-t-transparent animate-spin" />
-        <p className="text-off-white-soft/70 font-texto">Carregando ingressos...</p>
+        <motion.div
+          className="w-16 h-16 rounded-full border-3 border-amarelo/30 border-t-amarelo"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        />
+        <p className="text-off-white-soft/70 font-texto text-sm">
+          Carregando ingressos...
+        </p>
       </div>
     );
   }
 
-  // Error state
   if (erro && !evento) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
-        <div className="w-16 h-16 rounded-full bg-vermelho/20 flex items-center justify-center text-vermelho">
-          {Icons.alert}
+      <motion.div
+        className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="w-20 h-20 rounded-full bg-vermelho/10 flex items-center justify-center">
+          <svg className="w-10 h-10 text-vermelho" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
         </div>
-        <h2 className="font-titulo text-xl text-off-white">Ops!</h2>
-        <p className="text-off-white-soft/70 font-texto">{erro}</p>
+        <div>
+          <h2 className="font-titulo text-2xl text-off-white mb-2">Ops!</h2>
+          <p className="text-off-white-soft/70 font-texto">{erro}</p>
+        </div>
         <button
           onClick={() => router.push("/")}
-          className="mt-4 px-6 py-3 bg-amarelo text-marrom-dark font-titulo text-sm uppercase tracking-wide rounded-lg"
+          className="px-8 py-3 bg-amarelo text-marrom-dark font-titulo text-sm uppercase tracking-wide rounded-xl hover:bg-amarelo-light transition-colors"
         >
           Voltar ao início
         </button>
-      </div>
+      </motion.div>
     );
   }
 
-  // No lots available
   if (lotes.length === 0 || !lotes.some((l) => l.disponivel)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
-        <div className="w-16 h-16 rounded-full bg-amarelo/20 flex items-center justify-center text-amarelo">
-          {Icons.ticket}
+      <motion.div
+        className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="w-20 h-20 rounded-full bg-amarelo/10 flex items-center justify-center">
+          <svg className="w-10 h-10 text-amarelo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+          </svg>
         </div>
-        <h2 className="font-titulo text-xl text-off-white">Ingressos Esgotados</h2>
-        <p className="text-off-white-soft/70 font-texto">
-          Todos os ingressos foram vendidos. Fique de olho nas próximas edições!
-        </p>
+        <div>
+          <h2 className="font-titulo text-2xl text-off-white mb-2">Ingressos Esgotados</h2>
+          <p className="text-off-white-soft/70 font-texto max-w-xs">
+            Todos os ingressos foram vendidos. Fique de olho nas próximas edições!
+          </p>
+        </div>
         <button
           onClick={() => router.push("/")}
-          className="mt-4 px-6 py-3 bg-amarelo text-marrom-dark font-titulo text-sm uppercase tracking-wide rounded-lg"
+          className="px-8 py-3 bg-amarelo text-marrom-dark font-titulo text-sm uppercase tracking-wide rounded-xl hover:bg-amarelo-light transition-colors"
         >
           Voltar ao início
         </button>
-      </div>
+      </motion.div>
     );
   }
+
+  // =============================================
+  // RENDER PRINCIPAL
+  // =============================================
 
   return (
     <motion.div
-      className="max-w-md mx-auto"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      className="max-w-md mx-auto pb-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Título */}
-      <div className="text-center mb-6">
-        <h1 className="font-titulo text-2xl text-off-white mb-1">Seu Carrinho</h1>
-        <p className="font-texto text-sm text-off-white-soft/70">
-          Selecione o ingresso e quantidade
-        </p>
-      </div>
-
-      {/* Card do Evento */}
+      {/* ====== CARD DO EVENTO ====== */}
       <motion.div
-        className="bg-marrom/50 border border-marrom rounded-xl p-4 mb-6"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-marrom/80 to-marrom-dark border border-marrom mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-start gap-4">
-          {/* Ícone decorativo */}
-          <div className="w-12 h-12 rounded-lg bg-amarelo/20 flex items-center justify-center text-amarelo shrink-0">
-            {Icons.ticket}
+        {/* Textura decorativa */}
+        <div className="absolute inset-0 opacity-5 bg-[url('/noise.png')] pointer-events-none" />
+        
+        <div className="relative p-5">
+          {/* Header do evento */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 rounded-xl bg-amarelo/20 flex items-center justify-center">
+              <svg className="w-7 h-7 text-amarelo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="font-titulo text-xl text-off-white uppercase tracking-wide">
+                Naipe VIP
+              </h1>
+              <p className="font-texto text-sm text-amarelo">
+                Tardezinha Pré-Carnaval
+              </p>
+            </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <h2 className="font-titulo text-lg text-off-white truncate">
-              {evento?.nome}
-            </h2>
+          {/* Informações do evento */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2 text-off-white-soft/80">
+              <svg className="w-4 h-4 text-amarelo/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span className="font-texto text-sm">{evento?.data_formatada || "06 de Fevereiro"}</span>
+            </div>
 
-            <div className="mt-2 space-y-1">
-              <div className="flex items-center gap-2 text-off-white-soft/70">
-                <span className="text-amarelo/70">{Icons.calendar}</span>
-                <span className="font-texto text-sm">{evento?.data_formatada}</span>
-              </div>
+            <div className="flex items-center gap-2 text-off-white-soft/80">
+              <svg className="w-4 h-4 text-amarelo/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-texto text-sm">A partir das 20h</span>
+            </div>
 
-              <div className="flex items-center gap-2 text-off-white-soft/70">
-                <span className="text-amarelo/70">{Icons.clock}</span>
-                <span className="font-texto text-sm">A partir do pôr do sol</span>
-              </div>
+            <div className="flex items-center gap-2 text-off-white-soft/80 col-span-2">
+              <svg className="w-4 h-4 text-amarelo/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="font-texto text-sm">
+                Centro Comunitário - Fernando Prestes, SP
+              </span>
+            </div>
 
-              {evento?.local_bairro && (
-                <div className="flex items-center gap-2 text-off-white-soft/70">
-                  <span className="text-amarelo/70">{Icons.location}</span>
-                  <span className="font-texto text-sm">
-                    {evento.local_bairro}
-                    {evento.local_cidade ? `, ${evento.local_cidade}` : ""}
-                  </span>
-                </div>
-              )}
+            <div className="flex items-center gap-2 text-off-white-soft/80">
+              <span className="w-4 h-4 rounded bg-vermelho/20 text-vermelho-light text-[10px] font-bold flex items-center justify-center shrink-0">
+                18
+              </span>
+              <span className="font-texto text-sm">Classificação +18</span>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Seleção de Lote */}
+      {/* ====== SEÇÃO DE SELEÇÃO ====== */}
       <motion.div
-        className="mb-4"
-        initial={{ opacity: 0, y: 10 }}
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <label className="block font-texto text-sm text-off-white-soft/70 mb-2">
-          Tipo de Ingresso
-        </label>
+        <h2 className="font-titulo text-sm text-off-white uppercase tracking-wider mb-4">
+          Quantos ingressos?
+        </h2>
 
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setDropdownAberto(!dropdownAberto)}
-            className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-marrom/50 border border-marrom rounded-xl text-left transition-colors hover:border-amarelo/50 focus:outline-none focus:border-amarelo"
-          >
-            <div className="flex-1 min-w-0">
-              {loteAtual ? (
-                <>
-                  <span className="block font-titulo text-off-white">
-                    {loteAtual.nome}
-                  </span>
-                  <span className="block font-texto text-sm text-amarelo">
-                    R$ {loteAtual.preco.toFixed(2).replace(".", ",")}
-                  </span>
-                </>
-              ) : (
-                <span className="text-off-white-soft/50">Selecione um lote</span>
-              )}
+        {/* Info do lote atual */}
+        {loteAtual && (
+          <div className="flex items-center gap-3 mb-4 px-4 py-3 bg-amarelo/10 border border-amarelo/30 rounded-xl">
+            <div className="w-8 h-8 rounded-lg bg-amarelo/20 flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4 text-amarelo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
             </div>
-            <span
-              className={`text-off-white-soft/50 transition-transform ${
-                dropdownAberto ? "rotate-180" : ""
-              }`}
-            >
-              {Icons.chevronDown}
-            </span>
-          </button>
+            <div>
+              <span className="block font-titulo text-off-white text-sm">
+                {loteAtual.nome}
+              </span>
+              <span className="block font-texto text-xs text-amarelo">
+                A partir de R$ {precoUnitario.toFixed(2).replace(".", ",")}
+              </span>
+            </div>
+          </div>
+        )}
 
-          {/* Dropdown */}
-          <AnimatePresence>
-            {dropdownAberto && (
-              <motion.div
-                className="absolute top-full left-0 right-0 mt-2 bg-marrom-dark border border-marrom rounded-xl overflow-hidden shadow-lg z-20"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
+        {/* Seletor de Quantidade - Cards */}
+        <div className="grid grid-cols-3 gap-3">
+          {quantidadeOpcoes.map((qtd) => {
+            const precoOpcao = precosFixos[qtd];
+            const economiaOpcao = (precoUnitario * qtd) - precoOpcao;
+            
+            return (
+              <button
+                key={qtd}
+                type="button"
+                onClick={() => handleQuantidadeSelect(qtd)}
+                className={`relative flex flex-col items-center justify-center py-4 rounded-xl border-2 transition-all ${
+                  quantidade === qtd
+                    ? "bg-amarelo/10 border-amarelo text-amarelo"
+                    : "bg-marrom/40 border-marrom hover:border-amarelo/40 text-off-white"
+                }`}
               >
-                {lotes.map((lote) => (
-                  <button
-                    key={lote.id}
-                    type="button"
-                    disabled={!lote.disponivel}
-                    onClick={() => handleLoteChange(lote.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
-                      lote.disponivel
-                        ? "hover:bg-marrom/50"
-                        : "opacity-50 cursor-not-allowed"
-                    } ${lote.id === loteSelecionado ? "bg-amarelo/10" : ""}`}
-                  >
-                    <div className="flex-1">
-                      <span
-                        className={`block font-titulo ${
-                          lote.id === loteSelecionado
-                            ? "text-amarelo"
-                            : "text-off-white"
-                        }`}
-                      >
-                        {lote.nome}
-                      </span>
-                      <span className="block font-texto text-sm text-off-white-soft/70">
-                        {lote.esgotado
-                          ? "Esgotado"
-                          : `R$ ${lote.preco.toFixed(2).replace(".", ",")}`}
-                      </span>
-                    </div>
-
-                    {lote.id === loteSelecionado && (
-                      <span className="text-amarelo">{Icons.check}</span>
-                    )}
-
-                    {lote.esgotado && (
-                      <span className="px-2 py-0.5 bg-vermelho/20 text-vermelho-light text-xs font-texto rounded">
-                        Esgotado
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </motion.div>
-
-      {/* Seleção de Quantidade */}
-      <motion.div
-        className="mb-6"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <label className="block font-texto text-sm text-off-white-soft/70 mb-2">
-          Quantidade
-        </label>
-
-        <div className="flex items-center justify-between px-4 py-3 bg-marrom/50 border border-marrom rounded-xl">
-          <button
-            type="button"
-            onClick={() => handleQuantidadeChange(-1)}
-            disabled={quantidade <= 1}
-            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
-              quantidade <= 1
-                ? "text-off-white-soft/30 cursor-not-allowed"
-                : "text-off-white hover:bg-marrom active:bg-amarelo/20"
-            }`}
-          >
-            {Icons.minus}
-          </button>
-
-          <span className="font-titulo text-2xl text-off-white min-w-[3rem] text-center">
-            {quantidade}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => handleQuantidadeChange(1)}
-            disabled={quantidade >= limiteAtual}
-            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
-              quantidade >= limiteAtual
-                ? "text-off-white-soft/30 cursor-not-allowed"
-                : "text-off-white hover:bg-marrom active:bg-amarelo/20"
-            }`}
-          >
-            {Icons.plus}
-          </button>
+                {qtd === 2 && (
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-amarelo text-marrom-dark text-[10px] font-titulo uppercase rounded-full whitespace-nowrap">
+                    Mais escolhido
+                  </span>
+                )}
+                <span className="font-titulo text-2xl">
+                  {qtd}
+                </span>
+                <span className="font-texto text-[10px] opacity-70">
+                  {qtd === 1 ? "ingresso" : "ingressos"}
+                </span>
+                <span className={`font-titulo text-sm mt-1 ${quantidade === qtd ? "text-amarelo" : "text-off-white"}`}>
+                  R$ {precoOpcao}
+                </span>
+                {economiaOpcao > 0 && (
+                  <span className="font-texto text-[10px] text-verde-musgo-light mt-0.5">
+                    -R$ {economiaOpcao}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <p className="mt-2 font-texto text-xs text-off-white-soft/50 flex items-center gap-1">
-          {Icons.alert}
-          <span>Limite de {limiteAtual} ingressos por pessoa</span>
+        <p className="mt-3 font-texto text-xs text-off-white-soft/50 text-center">
+          Máximo de 4 ingressos por pessoa
         </p>
       </motion.div>
 
-      {/* Resumo */}
+      {/* ====== RESUMO DO PEDIDO ====== */}
       <motion.div
         className="bg-marrom/30 border border-marrom rounded-xl p-4 mb-6"
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.3 }}
       >
-        <h3 className="font-titulo text-sm text-off-white-soft/70 uppercase tracking-wide mb-3">
-          Resumo
+        <h3 className="font-titulo text-xs text-off-white-soft/60 uppercase tracking-wider mb-4">
+          Resumo do Pedido
         </h3>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="font-texto text-off-white-soft">
-              {quantidade}x {loteAtual?.nome}
+              {quantidade}x Ingresso {loteAtual?.nome}
             </span>
             <span className="font-texto text-off-white">
               R$ {subtotal.toFixed(2).replace(".", ",")}
             </span>
           </div>
 
-          <div className="border-t border-marrom my-3" />
+          {economiaTotal > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="font-texto text-verde-musgo-light text-sm">
+                Economia no pacote
+              </span>
+              <span className="font-texto text-verde-musgo-light text-sm">
+                -R$ {economiaTotal.toFixed(2).replace(".", ",")}
+              </span>
+            </div>
+          )}
+
+          <div className="border-t border-marrom/50" />
 
           <div className="flex justify-between items-center">
-            <span className="font-titulo text-off-white">Total</span>
-            <span className="font-titulo text-xl text-amarelo">
+            <span className="font-titulo text-off-white uppercase text-sm">Total</span>
+            <span className="font-titulo text-2xl text-amarelo">
               R$ {subtotal.toFixed(2).replace(".", ",")}
             </span>
           </div>
         </div>
       </motion.div>
 
-      {/* Erro */}
+      {/* ====== CHECKBOX DE TERMOS ====== */}
+      <motion.div
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+      >
+        <div className="flex items-center gap-3">
+          <label className="relative cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={aceitouTermos}
+              onChange={(e) => setAceitouTermos(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
+              aceitouTermos 
+                ? "bg-amarelo border-amarelo" 
+                : "border-off-white-soft/40 group-hover:border-amarelo/60"
+            }`}>
+              {aceitouTermos && (
+                <svg className="w-3 h-3 text-marrom-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </div>
+          </label>
+          <span className="font-texto text-[11px] text-off-white-soft/70">
+            Li e concordo com os{" "}
+            <button
+              type="button"
+              onClick={() => setMostrarTermos(true)}
+              className="text-amarelo underline hover:text-amarelo-light transition-colors"
+            >
+              termos de uso e política de privacidade
+            </button>.
+          </span>
+        </div>
+      </motion.div>
+
+      {/* ====== MENSAGEM DE ERRO ====== */}
       <AnimatePresence>
         {erro && (
           <motion.div
-            className="mb-4 p-3 bg-vermelho/20 border border-vermelho/50 rounded-lg flex items-start gap-2"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            className="mb-4 p-4 bg-vermelho/10 border border-vermelho/30 rounded-xl flex items-start gap-3"
+            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+            animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
           >
-            <span className="text-vermelho-light shrink-0 mt-0.5">{Icons.alert}</span>
+            <svg className="w-5 h-5 text-vermelho-light shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <p className="font-texto text-sm text-vermelho-light">{erro}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Botão de Ação */}
+      {/* ====== BOTÃO CTA ====== */}
       <motion.button
         type="button"
         onClick={handleContinuar}
-        disabled={processando || !loteAtual}
+        disabled={processando || !loteAtual || !aceitouTermos}
         className={`w-full py-4 rounded-xl font-titulo text-base uppercase tracking-wide transition-all ${
-          processando || !loteAtual
-            ? "bg-off-white-soft/20 text-off-white-soft/50 cursor-not-allowed"
-            : "bg-amarelo hover:bg-amarelo-light text-marrom-dark shadow-warm hover:shadow-glow"
+          processando || !loteAtual || !aceitouTermos
+            ? "bg-off-white-soft/10 text-off-white-soft/30 cursor-not-allowed"
+            : "bg-amarelo hover:bg-amarelo-light text-marrom-dark shadow-warm hover:shadow-glow active:scale-[0.98]"
         }`}
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        whileTap={{ scale: processando ? 1 : 0.98 }}
+        transition={{ delay: 0.4 }}
       >
         {processando ? (
-          <span className="flex items-center justify-center gap-2">
-            {Icons.spinner}
+          <span className="flex items-center justify-center gap-3">
+            <motion.span
+              className="w-5 h-5 border-2 border-marrom-dark/30 border-t-marrom-dark rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
             Processando...
           </span>
         ) : (
@@ -588,22 +566,142 @@ function CarrinhoContent() {
         )}
       </motion.button>
 
-      {/* Info de segurança */}
+      {/* ====== INFO DE SEGURANÇA ====== */}
       <motion.div
-        className="mt-4 flex items-center justify-center gap-2 text-off-white-soft/50"
+        className="mt-5 flex items-center justify-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.5 }}
       >
-        <span className="text-verde-musgo-light">{Icons.lock}</span>
-        <span className="font-texto text-xs">Pagamento seguro via PIX</span>
+        <svg className="w-4 h-4 text-verde-musgo-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <span className="font-texto text-xs text-off-white-soft/50">
+          Pagamento seguro via PIX
+        </span>
       </motion.div>
+
+      {/* ====== MODAL DE TERMOS ====== */}
+      <AnimatePresence>
+        {mostrarTermos && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMostrarTermos(false)}
+            />
+
+            {/* Modal */}
+            <motion.div
+              className="relative w-full max-w-lg max-h-[80vh] bg-marrom-dark border border-marrom rounded-2xl overflow-hidden"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-marrom">
+                <h3 className="font-titulo text-lg text-off-white uppercase tracking-wide">
+                  Termos de Uso e Privacidade
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setMostrarTermos(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-marrom/50 text-off-white-soft hover:text-off-white hover:bg-marrom transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="p-4 overflow-y-auto max-h-[60vh] space-y-4">
+                <div>
+                  <h4 className="font-titulo text-sm text-amarelo uppercase mb-2">1. Ingressos</h4>
+                  <p className="font-texto text-xs text-off-white-soft/80 leading-relaxed">
+                    Os ingressos adquiridos são pessoais e intransferíveis. Cada ingresso é válido para 
+                    uma única entrada no evento. A apresentação do QR Code do ingresso é obrigatória 
+                    para acesso ao evento.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-titulo text-sm text-amarelo uppercase mb-2">2. Política de Reembolso</h4>
+                  <p className="font-texto text-xs text-off-white-soft/80 leading-relaxed">
+                    Não haverá reembolso após a confirmação do pagamento, exceto em caso de cancelamento 
+                    do evento por parte da organização. Em caso de cancelamento, o valor será devolvido 
+                    integralmente através do mesmo método de pagamento utilizado na compra.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-titulo text-sm text-amarelo uppercase mb-2">3. Classificação Etária</h4>
+                  <p className="font-texto text-xs text-off-white-soft/80 leading-relaxed">
+                    O evento é classificado para maiores de 18 anos. É obrigatória a apresentação de 
+                    documento oficial com foto na entrada. Menores de idade não terão acesso ao evento, 
+                    mesmo acompanhados de responsáveis.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-titulo text-sm text-amarelo uppercase mb-2">4. Dados Pessoais</h4>
+                  <p className="font-texto text-xs text-off-white-soft/80 leading-relaxed">
+                    Os dados pessoais coletados (nome, CPF, e-mail e telefone) serão utilizados 
+                    exclusivamente para fins de identificação, emissão de ingressos e comunicação 
+                    sobre o evento. Seus dados não serão compartilhados com terceiros.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-titulo text-sm text-amarelo uppercase mb-2">5. Responsabilidades</h4>
+                  <p className="font-texto text-xs text-off-white-soft/80 leading-relaxed">
+                    A organização não se responsabiliza por objetos perdidos ou roubados durante o evento. 
+                    O participante é responsável por sua própria segurança e deve seguir as orientações 
+                    da equipe de segurança. Comportamentos inadequados podem resultar na retirada do 
+                    participante sem direito a reembolso.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-titulo text-sm text-amarelo uppercase mb-2">6. Imagem e Som</h4>
+                  <p className="font-texto text-xs text-off-white-soft/80 leading-relaxed">
+                    Ao participar do evento, você autoriza o uso de sua imagem em fotos e vídeos para 
+                    fins de divulgação do evento em redes sociais e materiais promocionais.
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 border-t border-marrom">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAceitouTermos(true);
+                    setMostrarTermos(false);
+                  }}
+                  className="w-full py-3 bg-amarelo hover:bg-amarelo-light text-marrom-dark font-titulo text-sm uppercase tracking-wide rounded-xl transition-colors"
+                >
+                  Li e aceito os termos
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
 // =============================================
-// PAGE EXPORT WITH SUSPENSE
+// PAGE EXPORT
 // =============================================
 
 export default function CarrinhoPage() {
@@ -611,8 +709,12 @@ export default function CarrinhoPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-          <div className="w-12 h-12 rounded-full border-2 border-amarelo border-t-transparent animate-spin" />
-          <p className="text-off-white-soft/70 font-texto">Carregando...</p>
+          <motion.div
+            className="w-16 h-16 rounded-full border-3 border-amarelo/30 border-t-amarelo"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <p className="text-off-white-soft/70 font-texto text-sm">Carregando...</p>
         </div>
       }
     >

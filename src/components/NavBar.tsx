@@ -12,6 +12,7 @@ interface NavItem {
   href: string;
   highlight?: boolean;
   isExternal?: boolean;
+  iconOnly?: boolean;
 }
 
 export default function NavBar() {
@@ -47,9 +48,10 @@ export default function NavBar() {
   const navItems: NavItem[] = [
     {
       id: 'inicio',
-      label: 'Início',
+      label: '',
       icon: '🏠',
       href: '#',
+      iconOnly: true,
     },
     {
       id: 'ingressos',
@@ -158,9 +160,10 @@ export default function NavBar() {
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item)}
                   className={`
-                    relative flex items-center gap-1.5 px-4 py-2.5 rounded-full
+                    relative flex items-center gap-1.5 rounded-full
                     font-titulo text-xs uppercase tracking-wider
                     transition-all duration-300
+                    ${item.iconOnly ? 'px-3 py-2.5' : 'px-4 py-2.5'}
                     ${isHighlight
                       ? isActive
                         ? 'bg-amarelo text-marrom-dark shadow-glow'
@@ -173,10 +176,12 @@ export default function NavBar() {
                   whileTap={{ scale: 0.95 }}
                 >
                   {/* Ícone */}
-                  <span className="text-sm">{item.icon}</span>
+                  <span className={item.iconOnly ? 'text-base' : 'text-sm'}>{item.icon}</span>
                   
-                  {/* Label */}
-                  <span className="max-w-[60px] truncate">{item.label}</span>
+                  {/* Label - só mostra se não for iconOnly */}
+                  {!item.iconOnly && item.label && (
+                    <span>{item.label}</span>
+                  )}
 
                   {/* Indicador de ativo (glow sutil) */}
                   {isActive && !isHighlight && (
