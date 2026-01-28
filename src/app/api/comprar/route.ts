@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { validateSession } from "@/lib/auth";
-import QRCode from "qrcode";
+import { criarPagamentoPix, mapearStatusPagamento } from "@/lib/mercado-pago";
 
 // =============================================
 // TYPES
@@ -14,35 +14,7 @@ interface CompraRequest {
 }
 
 // =============================================
-// HELPER FUNCTIONS
-// =============================================
-
-// Gerar código PIX simulado (em produção, usar Mercado Pago)
-function gerarPixSimulado(pedidoId: string, valor: number): string {
-  const timestamp = Date.now();
-  // Simula um código PIX EMV
-  return `00020126580014BR.GOV.BCB.PIX0136${pedidoId}520400005303986540${valor.toFixed(2)}5802BR5913NAIPE VIP6008SAOPAULO62070503***6304${timestamp.toString(16).slice(-4).toUpperCase()}`;
-}
-
-// Gerar QR Code base64
-async function gerarQRCodeBase64(texto: string): Promise<string> {
-  try {
-    const qrCode = await QRCode.toDataURL(texto, {
-      width: 300,
-      margin: 2,
-      color: {
-        dark: "#1a1a1a",
-        light: "#ffffff",
-      },
-    });
-    return qrCode;
-  } catch {
-    throw new Error("Erro ao gerar QR Code");
-  }
-}
-
-// =============================================
-// POST - Criar Pedido
+// POST - Criar Pedido com PIX do Mercado Pago
 // =============================================
 
 export async function POST(request: NextRequest) {
@@ -151,11 +123,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calcular valores
-    const valorTotal = lote.preco * quantidade;
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    // Calcular valores (usando preços de pacote)
+    const precosFixos: Record<number, number> = { 1: 20, 2: 35, 4: 60 };
+    const valorTotal = precosFixos[quantidade] || lote.preco * quantidade;
+    const expiracaoMinutos = 15;
+    const expiresAt = new Date(Date.now() + expiracaoMinutos * 60 * 1000);
 
-    // Criar pedido
+    // Criar pedido no banco (status pendente)
     const { data: pedido, error: pedidoError } = await supabase
       .from("pedidos")
       .insert({
@@ -182,7 +156,7 @@ export async function POST(request: NextRequest) {
       pedido_id: pedido.id,
       lote_id: loteId,
       quantidade,
-      preco_unitario: lote.preco,
+      preco_unitario: valorTotal / quantidade, // Preço unitário com desconto
       subtotal: valorTotal,
     });
 
@@ -196,25 +170,64 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Gerar PIX (simulado por enquanto)
-    // TODO: Integrar com Mercado Pago
-    const pixCode = gerarPixSimulado(pedido.id, valorTotal);
-    const pixQRCodeBase64 = await gerarQRCodeBase64(pixCode);
+    // =============================================
+    // INTEGRAÇÃO COM MERCADO PAGO - PIX
+    // =============================================
+    
+    const eventoNome = lote.eventos?.nome || "Naipe VIP";
+    const descricao = `${quantidade}x Ingresso - ${eventoNome}`;
 
-    // Criar registro de pagamento
+    const resultadoMP = await criarPagamentoPix({
+      valor: valorTotal,
+      descricao: descricao,
+      email: session.email,
+      nome: session.nome,
+      externalReference: pedido.id,
+      expiracaoMinutos: expiracaoMinutos,
+    });
+
+    if (!resultadoMP.success) {
+      console.error("Erro ao criar PIX no Mercado Pago:", resultadoMP.error);
+      // Reverter pedido
+      await supabase.from("pedidos").delete().eq("id", pedido.id);
+      return NextResponse.json(
+        { error: `Erro ao gerar PIX: ${resultadoMP.error}` },
+        { status: 500 }
+      );
+    }
+
+    const orderData = resultadoMP.data;
+    const paymentData = orderData.transactions?.payments?.[0];
+    const pixData = paymentData?.payment_method?.data;
+
+    // Extrair dados do PIX
+    const pixQrCode = pixData?.qr_code || "";
+    const pixQrCodeBase64 = pixData?.qr_code_base64 || "";
+
+    // Mapear status
+    const { pagamentoStatus } = mapearStatusPagamento(
+      orderData.status,
+      orderData.status_detail
+    );
+
+    // Criar registro de pagamento com dados do Mercado Pago
     const { error: pagamentoError } = await supabase.from("pagamentos").insert({
       pedido_id: pedido.id,
+      mp_payment_id: orderData.id, // Order ID do Mercado Pago
       metodo: "pix",
-      status: "pending",
+      status: pagamentoStatus,
       valor: valorTotal,
-      pix_qr_code: pixCode,
-      pix_qr_code_base64: pixQRCodeBase64,
+      pix_qr_code: pixQrCode,
+      pix_qr_code_base64: pixQrCodeBase64.startsWith("data:")
+        ? pixQrCodeBase64
+        : `data:image/png;base64,${pixQrCodeBase64}`,
       pix_expiration: expiresAt.toISOString(),
+      raw_response: orderData,
     });
 
     if (pagamentoError) {
       console.error("Erro ao criar pagamento:", pagamentoError);
-      // Não reverter, o pedido ainda é válido
+      // Não reverter, o pedido ainda é válido e podemos tentar novamente
     }
 
     // Retornar dados do pedido
@@ -235,10 +248,17 @@ export async function POST(request: NextRequest) {
         },
       },
       pix: {
-        qr_code: pixCode,
-        qr_code_base64: pixQRCodeBase64,
-        copia_cola: pixCode,
+        qr_code: pixQrCode,
+        qr_code_base64: pixQrCodeBase64.startsWith("data:")
+          ? pixQrCodeBase64
+          : `data:image/png;base64,${pixQrCodeBase64}`,
+        copia_cola: pixQrCode,
         expiration: expiresAt.toISOString(),
+      },
+      mercadoPago: {
+        orderId: orderData.id,
+        status: orderData.status,
+        statusDetail: orderData.status_detail,
       },
     });
   } catch (error) {

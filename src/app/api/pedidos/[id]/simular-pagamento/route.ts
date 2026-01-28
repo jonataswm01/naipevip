@@ -49,7 +49,7 @@ export async function POST(
       .from("pedidos")
       .select("*, pedido_itens(*)")
       .eq("id", id)
-      .eq("usuario_id", session.usuario.id)
+      .eq("usuario_id", session.id)
       .single();
 
     if (pedidoError || !pedido) {
@@ -102,10 +102,10 @@ export async function POST(
         const ingressoData = {
           pedido_id: pedido.id,
           pedido_item_id: item.id,
-          usuario_id: session.usuario.id,
+          usuario_id: session.id,
           evento_id: pedido.evento_id,
           lote_id: item.lote_id,
-          nome_titular: session.usuario.nome,
+          nome_titular: session.nome,
           status: "ativo" as const,
         };
 
@@ -146,20 +146,29 @@ export async function POST(
       }
 
       // Atualizar quantidade vendida do lote
-      await supabase.rpc("update_lote_quantidade_vendida", {
-        p_lote_id: item.lote_id,
-      }).catch(() => {
-        // Se a função RPC não existir, fazer update manual
-        supabase
+      try {
+        const { error: rpcError } = await supabase.rpc("update_lote_quantidade_vendida", {
+          p_lote_id: item.lote_id,
+        });
+        
+        // Se a função RPC falhar, fazer update manual
+        if (rpcError) {
+          await supabase
+            .from("lotes")
+            .update({
+              quantidade_vendida: (item.quantidade_vendida || 0) + item.quantidade,
+            })
+            .eq("id", item.lote_id);
+        }
+      } catch {
+        // Fallback: update manual se RPC não existir
+        await supabase
           .from("lotes")
           .update({
-            quantidade_vendida: supabase.rpc("increment_quantidade", {
-              row_id: item.lote_id,
-              amount: item.quantidade,
-            }),
+            quantidade_vendida: (item.quantidade_vendida || 0) + item.quantidade,
           })
           .eq("id", item.lote_id);
-      });
+      }
     }
 
     return NextResponse.json({

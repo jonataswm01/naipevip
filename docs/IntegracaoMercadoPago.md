@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Vamos integrar o **Checkout Transparente** do Mercado Pago para processar pagamentos PIX reais. Esta solução permite que todo o processo de pagamento aconteça dentro do nosso site, sem redirecionamento.
+Vamos integrar o **Checkout Transparente** do Mercado Pago usando a **API de Orders** para processar pagamentos PIX reais. Esta solução permite que todo o processo de pagamento aconteça dentro do nosso site, sem redirecionamento.
 
 ### Por que Checkout Transparente?
 
@@ -28,19 +28,20 @@ Como só precisamos de **PIX**, o Checkout Transparente é ideal.
 - [Tutorial: Como cadastrar chave PIX](https://www.youtube.com/watch?v=60tApKYVnkA)
 
 ### 3. Criar Aplicação no Mercado Pago
+
 1. Acessar [Suas Integrações](https://www.mercadopago.com.br/developers/panel/app)
 2. Clicar em **Criar aplicação**
 3. Configurar:
-   - Nome: "Naipe VIP - Ingressos"
-   - Tipo: **Pagamentos online**
-   - Integração: **Loja desenvolvida por conta própria**
-   - Solução: **Checkout Transparente**
-   - API: **API de Orders**
+   - **Nome**: "Naipe VIP - Ingressos"
+   - **Tipo de pagamento**: **Pagamentos online**
+   - **Integração**: **Loja desenvolvida por conta própria**
+   - **Solução**: **Checkout Transparente**
+   - **Tipo de API**: **API de Orders**
 4. Aceitar termos e confirmar
 
 ### 4. Obter Credenciais
 
-Após criar a aplicação, você terá acesso às credenciais:
+Após criar a aplicação, você terá acesso às credenciais em **Suas integrações > Dados da integração > Testes > Credenciais de teste**:
 
 | Credencial | Uso | Onde usar |
 |------------|-----|-----------|
@@ -49,8 +50,8 @@ Após criar a aplicação, você terá acesso às credenciais:
 
 #### Credenciais de Teste vs Produção
 
-- **Teste**: Para desenvolvimento e testes (não processa pagamentos reais)
-- **Produção**: Para ambiente real (processa pagamentos de verdade)
+- **Teste** (começam com `TEST-`): Para desenvolvimento e testes
+- **Produção** (começam com `APP_USR-`): Para ambiente real
 
 ---
 
@@ -68,135 +69,357 @@ Após criar a aplicação, você terá acesso às credenciais:
                        ▼                   │                    │
                ┌──────────────┐            │            ┌───────┴──────┐
                │ Mercado Pago │            │            │   Webhook    │
-               │  (Criar PIX) │            │            │  Mercado Pago│
+               │  POST /orders│            │            │  Mercado Pago│
                └──────┬───────┘            │            └───────┬──────┘
                        │                   │                    │
                        ▼                   ▼                    │
                ┌──────────────┐    ┌──────────────┐             │
                │ Retorna:     │    │ Polling ou   │─────────────┘
                │ - QR Code    │    │ Webhook      │
-               │ - Copia/Cola │    │ verifica     │
-               │ - ID do pag. │    │ pagamento    │
+               │ - Copia/Cola │    │ confirma pag │
+               │ - ticket_url │    │              │
                └──────────────┘    └──────────────┘
 ```
 
 ---
 
-## O Que Precisamos Implementar
+## API de Orders - Estrutura
 
-### 1. Configuração de Ambiente
+A API de Orders do Mercado Pago usa o endpoint `/v1/orders` para criar pagamentos.
+
+### Requisição para criar PIX
+
+```bash
+curl -X POST \
+    'https://api.mercadopago.com/v1/orders' \
+    -H 'Content-Type: application/json' \
+    -H 'X-Idempotency-Key: {{UNIQUE_VALUE}}' \
+    -H 'Authorization: Bearer {{ACCESS_TOKEN}}' \
+    -d '{
+        "type": "online",
+        "total_amount": "100.00",
+        "external_reference": "pedido_123",
+        "processing_mode": "automatic",
+        "transactions": {
+            "payments": [
+                {
+                    "amount": "100.00",
+                    "payment_method": {
+                        "id": "pix",
+                        "type": "bank_transfer"
+                    },
+                    "expiration_time": "PT30M"
+                }
+            ]
+        },
+        "payer": {
+            "email": "comprador@email.com"
+        }
+    }'
+```
+
+### Parâmetros Importantes
+
+| Parâmetro | Tipo | Descrição | Obrigatório |
+|-----------|------|-----------|-------------|
+| `Authorization` | Header | Access Token (`Bearer TEST-xxx...`) | Sim |
+| `X-Idempotency-Key` | Header | Chave única para evitar duplicidades (UUID) | Sim |
+| `type` | Body | Tipo da order (`online`) | Sim |
+| `total_amount` | Body | Valor total (string com 2 decimais) | Sim |
+| `external_reference` | Body | ID do pedido no seu sistema | Sim |
+| `processing_mode` | Body | `automatic` ou `manual` | Sim |
+| `transactions.payments.payment_method.id` | Body | `pix` | Sim |
+| `transactions.payments.payment_method.type` | Body | `bank_transfer` | Sim |
+| `transactions.payments.expiration_time` | Body | Tempo de expiração ISO 8601 (ex: `PT30M` = 30 min) | Não |
+| `payer.email` | Body | E-mail do comprador | Sim |
+
+### Resposta da API
+
+```json
+{
+  "id": "ORD01HRYFWNYRE1MR1E60MW3X0T2P",
+  "type": "online",
+  "total_amount": "100.00",
+  "external_reference": "pedido_123",
+  "country_code": "BRA",
+  "status": "action_required",
+  "status_detail": "waiting_transfer",
+  "capture_mode": "automatic",
+  "transactions": {
+    "payments": [
+      {
+        "id": "PAY01HRYFXQ53Q3JPEC48MYWMR0TE",
+        "reference_id": "123456789",
+        "status": "action_required",
+        "status_detail": "waiting_transfer",
+        "amount": "100.00",
+        "payment_method": {
+          "id": "pix",
+          "type": "bank_transfer",
+          "ticket_url": "https://www.mercadopago.com.br/sandbox/payments/.../ticket",
+          "qr_code": "00020126580014br.gov.bcb.pix...",
+          "qr_code_base64": "iVBORw0KGgoAAAANSUhEUgAAA..."
+        }
+      }
+    ]
+  },
+  "processing_mode": "automatic"
+}
+```
+
+### Dados do PIX Retornados
+
+| Campo | Descrição |
+|-------|-----------|
+| `ticket_url` | URL para página do Mercado Pago com QR Code e instruções |
+| `qr_code` | Código PIX "copia e cola" |
+| `qr_code_base64` | Imagem do QR Code em Base64 |
+
+---
+
+## Configurar Notificações (Webhooks)
+
+O webhook permite receber notificações automáticas quando o pagamento for confirmado.
+
+### Configurar no Painel
+
+1. Acessar [Suas Integrações](https://www.mercadopago.com.br/developers/panel/app)
+2. Selecionar a aplicação
+3. Ir em **Webhooks > Configurar notificações**
+4. Adicionar URL: `https://seu-dominio.com/api/webhooks/mercado-pago`
+5. Selecionar evento: **Order (Mercado Pago)**
+6. Salvar e copiar a **chave secreta** gerada
+
+### Estrutura da Notificação Recebida
+
+```json
+{
+  "action": "order.action_required",
+  "api_version": "v1",
+  "application_id": "76506430185983",
+  "date_created": "2021-11-01T02:02:02Z",
+  "id": "123456",
+  "live_mode": false,
+  "type": "order",
+  "user_id": 2025701502,
+  "data": {
+    "id": "ORD01JQ4S4KY8HWQ6NA5PXB65B3D3"
+  }
+}
+```
+
+### Actions do Webhook
+
+| Action | Significado |
+|--------|-------------|
+| `order.action_required` | Aguardando ação (pagamento pendente) |
+| `order.paid` | Pagamento confirmado |
+| `order.expired` | Order expirada |
+| `order.cancelled` | Order cancelada |
+
+### Validar Autenticidade da Notificação
+
+O Mercado Pago envia um header `x-signature` para validar a origem:
+
+```
+x-signature: ts=1742505638683,v1=ced36ab6d33566bb1e16c125819b8d840d6b8ef136b0b9127c76064466f5229b
+```
+
+Para validar:
+
+```javascript
+const crypto = require('crypto');
+
+function validarWebhook(xSignature, xRequestId, dataId, secret) {
+  // Extrair ts e hash do header
+  const parts = xSignature.split(',');
+  let ts, hash;
+  
+  parts.forEach(part => {
+    const [key, value] = part.split('=');
+    if (key.trim() === 'ts') ts = value.trim();
+    if (key.trim() === 'v1') hash = value.trim();
+  });
+
+  // Criar manifest (data.id deve ser em minúscula!)
+  const manifest = `id:${dataId.toLowerCase()};request-id:${xRequestId};ts:${ts};`;
+
+  // Gerar HMAC
+  const hmac = crypto.createHmac('sha256', secret);
+  hmac.update(manifest);
+  const calculatedHash = hmac.digest('hex');
+
+  return calculatedHash === hash;
+}
+```
+
+> **IMPORTANTE**: O `data.id` vem em maiúscula na notificação, mas deve ser convertido para **minúscula** na validação!
+
+---
+
+## Implementação no Projeto
+
+### Passo 1: Configurar Ambiente
 
 **Arquivo: `.env.local`**
 ```env
-# Credenciais de TESTE (desenvolvimento)
-MERCADO_PAGO_ACCESS_TOKEN=TEST-xxxx...
-MERCADO_PAGO_PUBLIC_KEY=TEST-xxxx...
+# Credenciais de TESTE
+MERCADO_PAGO_ACCESS_TOKEN=TEST-xxx...
+MERCADO_PAGO_PUBLIC_KEY=TEST-xxx...
+MERCADO_PAGO_WEBHOOK_SECRET=xxx...
 
-# Credenciais de PRODUÇÃO (quando for ao ar)
-# MERCADO_PAGO_ACCESS_TOKEN=APP_USR-xxxx...
-# MERCADO_PAGO_PUBLIC_KEY=APP_USR-xxxx...
-
-# URL do webhook (para MP notificar pagamentos)
+# URL base da aplicação (para webhook)
 NEXT_PUBLIC_APP_URL=https://seu-dominio.com
 ```
 
-### 2. Instalar SDK do Mercado Pago
+### Passo 2: Instalar SDK (Opcional)
 
 ```bash
 npm install mercadopago
 ```
 
-### 3. Modificar Arquivos
+> Nota: Podemos usar a API diretamente com `fetch`, sem necessidade do SDK.
 
-| Arquivo | Ação |
-|---------|------|
-| `src/lib/mercado-pago.ts` | Configurar SDK e criar funções helper |
-| `src/app/api/comprar/route.ts` | Criar pagamento PIX real via API |
-| `src/app/api/webhooks/mercado-pago/route.ts` | Receber notificação de pagamento |
-| `src/app/compra/pix/[pedidoId]/page.tsx` | Nenhuma mudança (já funciona) |
+### Passo 3: Criar Helper do Mercado Pago
 
----
-
-## Implementação Detalhada
-
-### Passo 1: Configurar SDK (`src/lib/mercado-pago.ts`)
+**Arquivo: `src/lib/mercado-pago.ts`**
 
 ```typescript
-import { MercadoPagoConfig, Payment } from 'mercadopago';
+import crypto from 'crypto';
 
-// Configurar cliente do Mercado Pago
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
-  options: { timeout: 5000 }
-});
+const MERCADO_PAGO_API = 'https://api.mercadopago.com';
 
-// Instância para criar pagamentos
-export const paymentClient = new Payment(client);
+interface CriarPixParams {
+  valor: number;
+  email: string;
+  pedidoId: string;
+  descricao?: string;
+  expiracaoMinutos?: number;
+}
 
-// Função para criar pagamento PIX
+interface PixResponse {
+  orderId: string;
+  paymentId: string;
+  status: string;
+  qrCode: string;
+  qrCodeBase64: string;
+  ticketUrl: string;
+}
+
+// Criar pagamento PIX via API de Orders
 export async function criarPagamentoPix({
   valor,
-  descricao,
   email,
-  nome,
-  cpf,
   pedidoId,
-}: {
-  valor: number;
-  descricao: string;
-  email: string;
-  nome: string;
-  cpf: string;
-  pedidoId: string;
-}) {
-  const nomeParts = nome.split(' ');
-  const firstName = nomeParts[0];
-  const lastName = nomeParts.slice(1).join(' ') || firstName;
-
-  const response = await paymentClient.create({
-    body: {
-      transaction_amount: valor,
-      payment_method_id: 'pix',
+  descricao = 'Ingresso Naipe VIP',
+  expiracaoMinutos = 30,
+}: CriarPixParams): Promise<PixResponse> {
+  const idempotencyKey = `${pedidoId}-${Date.now()}`;
+  
+  const response = await fetch(`${MERCADO_PAGO_API}/v1/orders`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
+      'X-Idempotency-Key': idempotencyKey,
+    },
+    body: JSON.stringify({
+      type: 'online',
+      total_amount: valor.toFixed(2),
+      external_reference: pedidoId,
+      processing_mode: 'automatic',
+      description: descricao,
+      notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercado-pago`,
+      transactions: {
+        payments: [
+          {
+            amount: valor.toFixed(2),
+            payment_method: {
+              id: 'pix',
+              type: 'bank_transfer',
+            },
+            expiration_time: `PT${expiracaoMinutos}M`,
+          },
+        ],
+      },
       payer: {
         email,
-        first_name: firstName,
-        last_name: lastName,
-        identification: {
-          type: 'CPF',
-          number: cpf.replace(/\D/g, ''),
-        },
       },
-      description: descricao,
-      external_reference: pedidoId, // ID do nosso pedido
-      notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercado-pago`,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.error('Erro Mercado Pago:', error);
+    throw new Error(error.message || 'Erro ao criar pagamento PIX');
+  }
+
+  const data = await response.json();
+  const payment = data.transactions.payments[0];
+
+  return {
+    orderId: data.id,
+    paymentId: payment.id,
+    status: data.status,
+    qrCode: payment.payment_method.qr_code,
+    qrCodeBase64: payment.payment_method.qr_code_base64,
+    ticketUrl: payment.payment_method.ticket_url,
+  };
+}
+
+// Buscar order por ID
+export async function buscarOrder(orderId: string) {
+  const response = await fetch(`${MERCADO_PAGO_API}/v1/orders/${orderId}`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
     },
   });
 
-  return {
-    id: response.id,
-    status: response.status,
-    qrCode: response.point_of_interaction?.transaction_data?.qr_code,
-    qrCodeBase64: response.point_of_interaction?.transaction_data?.qr_code_base64,
-    ticketUrl: response.point_of_interaction?.transaction_data?.ticket_url,
-    expirationDate: response.date_of_expiration,
-  };
+  if (!response.ok) {
+    throw new Error('Order não encontrada');
+  }
+
+  return response.json();
 }
 
-// Função para buscar status do pagamento
-export async function buscarPagamento(paymentId: string) {
-  const response = await paymentClient.get({ id: paymentId });
-  return {
-    id: response.id,
-    status: response.status,
-    statusDetail: response.status_detail,
-    externalReference: response.external_reference,
-  };
+// Validar assinatura do webhook
+export function validarWebhookSignature(
+  xSignature: string,
+  xRequestId: string,
+  dataId: string
+): boolean {
+  const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
+  if (!secret) return false;
+
+  // Extrair ts e hash
+  const parts = xSignature.split(',');
+  let ts = '', hash = '';
+
+  parts.forEach(part => {
+    const [key, value] = part.split('=');
+    if (key?.trim() === 'ts') ts = value?.trim() || '';
+    if (key?.trim() === 'v1') hash = value?.trim() || '';
+  });
+
+  if (!ts || !hash) return false;
+
+  // Criar manifest (dataId em minúscula!)
+  const manifest = `id:${dataId.toLowerCase()};request-id:${xRequestId};ts:${ts};`;
+
+  // Calcular HMAC
+  const hmac = crypto.createHmac('sha256', secret);
+  hmac.update(manifest);
+  const calculatedHash = hmac.digest('hex');
+
+  return calculatedHash === hash;
 }
 ```
 
-### Passo 2: Modificar API de Compra (`src/app/api/comprar/route.ts`)
+### Passo 4: Modificar API de Compra
 
-Substituir a geração de PIX fake pela chamada real:
+**Arquivo: `src/app/api/comprar/route.ts`**
+
+Substituir a geração de PIX fake:
 
 ```typescript
 // ANTES (fake)
@@ -206,13 +429,12 @@ const pixQRCodeBase64 = await gerarQRCodeBase64(pixCode);
 // DEPOIS (real)
 import { criarPagamentoPix } from '@/lib/mercado-pago';
 
-const pagamentoMP = await criarPagamentoPix({
+const pixData = await criarPagamentoPix({
   valor: valorTotal,
-  descricao: `Ingresso ${lote.nome} - Naipe VIP`,
   email: session.email,
-  nome: session.nome,
-  cpf: session.cpf,
   pedidoId: pedido.id,
+  descricao: `Ingresso ${lote.nome} - Naipe VIP`,
+  expiracaoMinutos: 15,
 });
 
 // Salvar no banco
@@ -221,101 +443,132 @@ await supabase.from('pagamentos').insert({
   metodo: 'pix',
   status: 'pending',
   valor: valorTotal,
-  mercado_pago_id: pagamentoMP.id?.toString(),
-  pix_qr_code: pagamentoMP.qrCode,
-  pix_qr_code_base64: `data:image/png;base64,${pagamentoMP.qrCodeBase64}`,
-  pix_expiration: pagamentoMP.expirationDate,
+  mercado_pago_order_id: pixData.orderId,
+  mercado_pago_payment_id: pixData.paymentId,
+  pix_qr_code: pixData.qrCode,
+  pix_qr_code_base64: pixData.qrCodeBase64.startsWith('data:') 
+    ? pixData.qrCodeBase64 
+    : `data:image/png;base64,${pixData.qrCodeBase64}`,
+  pix_expiration: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
 });
 ```
 
-### Passo 3: Implementar Webhook (`src/app/api/webhooks/mercado-pago/route.ts`)
+### Passo 5: Implementar Webhook
+
+**Arquivo: `src/app/api/webhooks/mercado-pago/route.ts`**
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { buscarPagamento } from '@/lib/mercado-pago';
+import { validarWebhookSignature, buscarOrder } from '@/lib/mercado-pago';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Mercado Pago envia diferentes tipos de notificação
-    if (body.type === 'payment' || body.action === 'payment.updated') {
-      const paymentId = body.data?.id || body.id;
-      
-      if (!paymentId) {
-        return NextResponse.json({ error: 'Payment ID não encontrado' }, { status: 400 });
-      }
+    const xSignature = request.headers.get('x-signature') || '';
+    const xRequestId = request.headers.get('x-request-id') || '';
 
-      // Buscar detalhes do pagamento no Mercado Pago
-      const pagamento = await buscarPagamento(paymentId.toString());
-      
-      // Buscar nosso registro de pagamento
-      const { data: pagamentoLocal } = await supabase
-        .from('pagamentos')
-        .select('*, pedidos(*)')
-        .eq('mercado_pago_id', paymentId.toString())
-        .single();
+    console.log('📩 Webhook recebido:', body.action, body.data?.id);
 
-      if (!pagamentoLocal) {
-        console.log('Pagamento não encontrado:', paymentId);
-        return NextResponse.json({ message: 'OK' });
-      }
-
-      const pedidoId = pagamentoLocal.pedido_id;
-
-      // Mapear status do Mercado Pago para nosso sistema
-      if (pagamento.status === 'approved') {
-        // Pagamento aprovado!
-        
-        // 1. Atualizar pagamento
-        await supabase
-          .from('pagamentos')
-          .update({ 
-            status: 'approved',
-            pago_em: new Date().toISOString()
-          })
-          .eq('id', pagamentoLocal.id);
-
-        // 2. Atualizar pedido
-        await supabase
-          .from('pedidos')
-          .update({ status: 'pago' })
-          .eq('id', pedidoId);
-
-        // 3. Gerar ingressos
-        await gerarIngressos(pedidoId);
-        
-        // 4. Atualizar quantidade vendida do lote
-        await atualizarQuantidadeVendida(pedidoId);
-
-        console.log('✅ Pagamento aprovado:', pedidoId);
-      } else if (pagamento.status === 'rejected') {
-        // Pagamento rejeitado
-        await supabase
-          .from('pagamentos')
-          .update({ status: 'rejected' })
-          .eq('id', pagamentoLocal.id);
-
-        await supabase
-          .from('pedidos')
-          .update({ status: 'cancelado' })
-          .eq('id', pedidoId);
-
-        console.log('❌ Pagamento rejeitado:', pedidoId);
+    // Validar assinatura (opcional mas recomendado)
+    if (xSignature && body.data?.id) {
+      const isValid = validarWebhookSignature(xSignature, xRequestId, body.data.id);
+      if (!isValid) {
+        console.warn('⚠️ Assinatura inválida do webhook');
+        // Continuar mesmo assim, pois pode ser ambiente de teste
       }
     }
 
+    // Processar apenas notificações de order
+    if (body.type !== 'order') {
+      return NextResponse.json({ message: 'Tipo ignorado' });
+    }
+
+    const orderId = body.data?.id;
+    if (!orderId) {
+      return NextResponse.json({ message: 'Order ID não encontrado' });
+    }
+
+    // Buscar detalhes da order no Mercado Pago
+    const order = await buscarOrder(orderId);
+    console.log('📦 Order status:', order.status, order.status_detail);
+
+    // Buscar pagamento local pelo order_id
+    const { data: pagamentoLocal } = await supabase
+      .from('pagamentos')
+      .select('*, pedidos(*)')
+      .eq('mercado_pago_order_id', orderId)
+      .single();
+
+    if (!pagamentoLocal) {
+      // Tentar buscar pelo external_reference (nosso pedido_id)
+      const { data: pagamentoPorRef } = await supabase
+        .from('pagamentos')
+        .select('*, pedidos(*)')
+        .eq('pedido_id', order.external_reference)
+        .single();
+
+      if (!pagamentoPorRef) {
+        console.log('⚠️ Pagamento não encontrado:', orderId);
+        return NextResponse.json({ message: 'Pagamento não encontrado' });
+      }
+    }
+
+    const pedidoId = pagamentoLocal?.pedido_id || order.external_reference;
+
+    // Processar baseado no status
+    if (order.status === 'processed' || order.status_detail === 'accredited') {
+      // ✅ Pagamento aprovado!
+      console.log('✅ Pagamento APROVADO:', pedidoId);
+
+      // 1. Atualizar pagamento
+      await supabase
+        .from('pagamentos')
+        .update({ 
+          status: 'approved',
+          pago_em: new Date().toISOString(),
+        })
+        .eq('pedido_id', pedidoId);
+
+      // 2. Atualizar pedido
+      await supabase
+        .from('pedidos')
+        .update({ status: 'pago' })
+        .eq('id', pedidoId);
+
+      // 3. Gerar ingressos
+      await gerarIngressos(pedidoId);
+
+      // 4. Atualizar quantidade vendida do lote
+      await atualizarQuantidadeVendida(pedidoId);
+
+    } else if (order.status === 'cancelled' || order.status === 'expired') {
+      // ❌ Pagamento cancelado/expirado
+      console.log('❌ Pagamento CANCELADO/EXPIRADO:', pedidoId);
+
+      await supabase
+        .from('pagamentos')
+        .update({ status: order.status })
+        .eq('pedido_id', pedidoId);
+
+      await supabase
+        .from('pedidos')
+        .update({ status: order.status === 'expired' ? 'expirado' : 'cancelado' })
+        .eq('id', pedidoId);
+    }
+
+    // Responder OK para o Mercado Pago
     return NextResponse.json({ message: 'OK' });
+
   } catch (error) {
-    console.error('Erro no webhook:', error);
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+    console.error('❌ Erro no webhook:', error);
+    // Retornar 200 mesmo com erro para evitar retentativas excessivas
+    return NextResponse.json({ error: 'Erro interno' }, { status: 200 });
   }
 }
 
-// Função para gerar ingressos após pagamento
+// Gerar ingressos após pagamento aprovado
 async function gerarIngressos(pedidoId: string) {
-  // Buscar itens do pedido
   const { data: itens } = await supabase
     .from('pedido_itens')
     .select('*, lotes(*), pedidos(usuario_id, evento_id)')
@@ -336,10 +589,12 @@ async function gerarIngressos(pedidoId: string) {
     }
   }
 
-  await supabase.from('ingressos').insert(ingressos);
+  if (ingressos.length > 0) {
+    await supabase.from('ingressos').insert(ingressos);
+  }
 }
 
-// Função para atualizar quantidade vendida do lote
+// Atualizar quantidade vendida do lote
 async function atualizarQuantidadeVendida(pedidoId: string) {
   const { data: itens } = await supabase
     .from('pedido_itens')
@@ -357,31 +612,20 @@ async function atualizarQuantidadeVendida(pedidoId: string) {
 
 ---
 
-## Status do Mercado Pago
+## Status da Order
 
-| Status MP | Significado | Ação no Sistema |
-|-----------|-------------|-----------------|
-| `pending` | Aguardando pagamento | Manter pedido pendente |
-| `approved` | Pago | Gerar ingressos |
-| `rejected` | Rejeitado | Cancelar pedido |
-| `cancelled` | Cancelado | Cancelar pedido |
-| `refunded` | Reembolsado | Cancelar ingressos |
+| Status | Status Detail | Significado |
+|--------|---------------|-------------|
+| `action_required` | `waiting_transfer` | Aguardando pagamento PIX |
+| `processed` | `accredited` | Pagamento aprovado |
+| `cancelled` | - | Order cancelada |
+| `expired` | - | Order expirada |
 
 ---
 
-## Testes
+## Testar Localmente
 
-### Ambiente de Testes
-
-O Mercado Pago fornece um ambiente sandbox para testes:
-
-1. Use as **Credenciais de Teste** (começam com `TEST-`)
-2. Use [Usuários de Teste](https://www.mercadopago.com.br/developers/pt/docs/checkout-api/integration-test/test-users)
-3. O PIX de teste pode ser "pago" simulando via API ou painel
-
-### Testar Webhook Localmente
-
-Use o [ngrok](https://ngrok.com/) para expor sua máquina local:
+### Usar ngrok para expor webhook
 
 ```bash
 # Instalar ngrok
@@ -390,33 +634,173 @@ npm install -g ngrok
 # Expor porta 3000
 ngrok http 3000
 
-# Copiar URL gerada (ex: https://abc123.ngrok.io)
-# Usar como NEXT_PUBLIC_APP_URL no .env.local
+# Usar a URL gerada (ex: https://abc123.ngrok.io)
+# Configurar no .env.local:
+NEXT_PUBLIC_APP_URL=https://abc123.ngrok.io
 ```
+
+### Simular Webhook no Painel
+
+1. Ir em **Suas integrações > Webhooks > Configurar notificações**
+2. Clicar em **Simular**
+3. Inserir um `data.id` de uma order criada
+4. Verificar se seu servidor recebe a notificação
+
+---
+
+## Alterações no Banco de Dados
+
+Adicionar campos na tabela `pagamentos`:
+
+```sql
+ALTER TABLE pagamentos 
+ADD COLUMN IF NOT EXISTS mercado_pago_order_id TEXT,
+ADD COLUMN IF NOT EXISTS mercado_pago_payment_id TEXT;
+```
+
+---
+
+---
+
+## Status Completos
+
+### Status da Order
+
+| Status | Status Detail | Descrição |
+|--------|---------------|-----------|
+| `created` | `created` | Order criada, aguardando processamento |
+| `processed` | `accredited` | Pagamento aprovado e creditado |
+| `processed` | `partially_refunded` | Aprovado com reembolso parcial |
+| `processing` | `in_process` | Em processamento |
+| `action_required` | `waiting_payment` | Aguardando pagamento (PIX pendente) |
+| `action_required` | `waiting_transfer` | Aguardando transferência |
+| `cancelled` | `cancelled` | Order cancelada |
+| `expired` | `expired` | Order expirada (30 dias sem pagamento) |
+| `refunded` | `refunded` | Totalmente reembolsada |
+| `failed` | `failed` | Falhou |
+
+### Status da Transação (Pagamento)
+
+| Status | Status Detail | Descrição |
+|--------|---------------|-----------|
+| `processed` | `accredited` | Pagamento creditado |
+| `action_required` | `waiting_transfer` | Aguardando PIX |
+| `expired` | `expired` | PIX expirou |
+| `refunded` | `refunded` | Reembolsado |
+| `failed` | `insufficient_amount` | Saldo insuficiente |
+| `failed` | `processing_error` | Erro de processamento |
+
+---
+
+## Reembolsos e Cancelamentos
+
+### Reembolso (após pagamento aprovado)
+
+```bash
+# Reembolso total
+curl -X POST \
+  'https://api.mercadopago.com/v1/orders/{order_id}/refund' \
+  -H 'Authorization: Bearer {{ACCESS_TOKEN}}' \
+  -H 'X-Idempotency-Key: {{UNIQUE_VALUE}}'
+
+# Reembolso parcial
+curl -X POST \
+  'https://api.mercadopago.com/v1/orders/{order_id}/refund' \
+  -H 'Authorization: Bearer {{ACCESS_TOKEN}}' \
+  -H 'X-Idempotency-Key: {{UNIQUE_VALUE}}' \
+  -d '{ "transactions": [{ "id": "{{TRANSACTION_ID}}", "amount": "50.00" }] }'
+```
+
+**Importante:**
+- Prazo: até **180 dias** após aprovação
+- PIX: valor devolvido na conta do pagador
+- Precisa ter saldo na conta MP
+
+### Cancelamento (antes de pagar)
+
+```bash
+curl -X POST \
+  'https://api.mercadopago.com/v1/orders/{order_id}/cancel' \
+  -H 'Authorization: Bearer {{ACCESS_TOKEN}}'
+```
+
+**Importante:**
+- Só funciona se `status: action_required`
+- PIX expira automaticamente após 30 dias
+
+---
+
+## Subir em Produção
+
+### 1. Ativar Credenciais de Produção
+
+1. Acessar [Suas Integrações](https://www.mercadopago.com.br/developers/panel/app)
+2. Selecionar a aplicação
+3. Ir em **Credenciais > Produção > Ativar credenciais**
+4. Preencher:
+   - **Indústria**: Entretenimento / Eventos
+   - **Website**: URL do seu site
+5. Aceitar termos e ativar
+
+### 2. Substituir Credenciais
+
+```env
+# .env.local - PRODUÇÃO
+MERCADO_PAGO_ACCESS_TOKEN=APP_USR-xxx...  # Começa com APP_USR
+MERCADO_PAGO_PUBLIC_KEY=APP_USR-xxx...
+```
+
+### 3. Certificado SSL (Obrigatório)
+
+- O site DEVE usar **HTTPS** em produção
+- Vercel/Netlify já fornecem SSL automático
+
+### 4. Atualizar Webhook
+
+- Configurar URL de produção no painel do MP
+- Usar a nova chave secreta gerada
 
 ---
 
 ## Checklist de Implementação
 
+### Configuração (você faz):
 - [ ] Criar conta Mercado Pago de vendedor
 - [ ] Cadastrar chave PIX na conta
-- [ ] Criar aplicação no painel de desenvolvedores
+- [ ] Criar aplicação no painel (API de Orders)
 - [ ] Obter credenciais de teste
-- [ ] Instalar SDK: `npm install mercadopago`
+- [ ] Configurar webhook no painel
+
+### Implementação (eu faço):
 - [ ] Configurar `.env.local` com credenciais
-- [ ] Implementar `src/lib/mercado-pago.ts`
+- [ ] Criar `src/lib/mercado-pago.ts`
 - [ ] Modificar `src/app/api/comprar/route.ts`
-- [ ] Implementar webhook `src/app/api/webhooks/mercado-pago/route.ts`
+- [ ] Implementar `src/app/api/webhooks/mercado-pago/route.ts`
+- [ ] Alterar tabela `pagamentos` no banco
+- [ ] Testar fluxo completo
+
+### Deploy:
 - [ ] Testar com ngrok localmente
 - [ ] Testar fluxo completo em sandbox
-- [ ] Trocar para credenciais de produção
-- [ ] Deploy em produção
+- [ ] Ativar credenciais de produção
+- [ ] Trocar para credenciais de produção no código
+- [ ] Configurar webhook com URL de produção
+- [ ] Deploy final
 
 ---
 
 ## Próximos Passos
 
-1. **Você precisa**: Criar conta MP, cadastrar PIX, criar aplicação e pegar credenciais
-2. **Eu implemento**: Todo o código necessário
+**Você já tem as credenciais de teste?**
 
-Quando tiver as credenciais de teste, me avise para implementarmos!
+Se sim, me passe:
+- `Access Token` (começa com `TEST-...`)
+
+E eu começo a implementar agora!
+
+Se não, siga os passos:
+1. Criar conta MP (se não tiver)
+2. Cadastrar chave PIX
+3. Criar aplicação (API de Orders)
+4. Pegar credenciais de teste
+5. Me passar o Access Token
