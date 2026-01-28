@@ -4,10 +4,11 @@ import crypto from "crypto";
 // CONFIGURAÇÃO DO MERCADO PAGO
 // =============================================
 
+// Export para compatibilidade (usa getters para ler variáveis no momento da execução)
 export const mercadoPagoConfig = {
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
-  publicKey: process.env.MERCADO_PAGO_PUBLIC_KEY,
-  webhookSecret: process.env.MERCADO_PAGO_WEBHOOK_SECRET,
+  get accessToken() { return process.env.MERCADO_PAGO_ACCESS_TOKEN || ""; },
+  get publicKey() { return process.env.MERCADO_PAGO_PUBLIC_KEY || ""; },
+  get webhookSecret() { return process.env.MERCADO_PAGO_WEBHOOK_SECRET || ""; },
   baseUrl: "https://api.mercadopago.com",
 };
 
@@ -80,9 +81,18 @@ export async function criarPagamentoPix(
     expiracaoMinutos = 15,
   } = params;
 
-  // Calcular data de expiração
-  const expirationDate = new Date();
-  expirationDate.setMinutes(expirationDate.getMinutes() + expiracaoMinutos);
+  // Obter Access Token
+  const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  
+  // Debug: verificar se o token existe
+  console.log("=== DEBUG MERCADO PAGO ===");
+  console.log("Access Token existe:", !!accessToken);
+  console.log("Access Token primeiros 20 chars:", accessToken?.substring(0, 20) + "...");
+  
+  if (!accessToken) {
+    console.error("ERRO: MERCADO_PAGO_ACCESS_TOKEN não está definido!");
+    return { success: false, error: "Configuração do Mercado Pago incompleta" };
+  }
 
   // Montar requisição conforme documentação da API de Orders
   const orderData = {
@@ -109,26 +119,35 @@ export async function criarPagamentoPix(
             id: "pix",
             type: "bank_transfer",
           },
-          expiration_time: `P0DT0H${expiracaoMinutos}M0S`, // ISO 8601 duration
+          expiration_time: `PT${expiracaoMinutos}M`, // ISO 8601 duration (ex: PT15M = 15 minutos)
         },
       ],
     },
-    // Dados adicionais para melhorar aprovação
-    description: descricao,
   };
 
+  console.log("Order Data:", JSON.stringify(orderData, null, 2));
+
   try {
-    const response = await fetch(`${mercadoPagoConfig.baseUrl}/v1/orders`, {
+    const url = "https://api.mercadopago.com/v1/orders";
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "X-Idempotency-Key": `${externalReference}-${Date.now()}`,
+    };
+    
+    console.log("URL:", url);
+    console.log("Headers (sem token completo):", { ...headers, Authorization: "Bearer ***" });
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${mercadoPagoConfig.accessToken}`,
-        "X-Idempotency-Key": `${externalReference}-${Date.now()}`,
-      },
+      headers,
       body: JSON.stringify(orderData),
     });
 
     const data = await response.json();
+    
+    console.log("Response status:", response.status);
+    console.log("Response data:", JSON.stringify(data, null, 2));
 
     if (!response.ok) {
       console.error("Erro Mercado Pago:", JSON.stringify(data, null, 2));

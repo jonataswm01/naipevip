@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { validateSession } from "@/lib/auth";
-import { criarPagamentoPix, mapearStatusPagamento } from "@/lib/mercado-pago";
+import { criarCobrancaPix, obterQrCodePix } from "@/lib/asaas";
 
 // =============================================
 // TYPES
@@ -11,10 +11,11 @@ import { criarPagamentoPix, mapearStatusPagamento } from "@/lib/mercado-pago";
 interface CompraRequest {
   loteId: string;
   quantidade: number;
+  cpf?: string;
 }
 
 // =============================================
-// POST - Criar Pedido com PIX do Mercado Pago
+// POST - Criar Pedido com PIX do Asaas
 // =============================================
 
 export async function POST(request: NextRequest) {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Parse body
     const body: CompraRequest = await request.json();
-    const { loteId, quantidade } = body;
+    const { loteId, quantidade, cpf } = body;
 
     // Validações básicas
     if (!loteId || typeof loteId !== "string") {
@@ -61,6 +62,15 @@ export async function POST(request: NextRequest) {
     if (!quantidade || quantidade < 1 || quantidade > 10) {
       return NextResponse.json(
         { error: "Quantidade inválida" },
+        { status: 400 }
+      );
+    }
+
+    // Validar CPF (obrigatório para PIX)
+    const cpfLimpo = cpf?.replace(/\D/g, "");
+    if (!cpfLimpo || cpfLimpo.length !== 11) {
+      return NextResponse.json(
+        { error: "CPF inválido. Informe um CPF válido com 11 dígitos." },
         { status: 400 }
       );
     }
@@ -126,7 +136,7 @@ export async function POST(request: NextRequest) {
     // Calcular valores (usando preços de pacote)
     const precosFixos: Record<number, number> = { 1: 20, 2: 35, 4: 60 };
     const valorTotal = precosFixos[quantidade] || lote.preco * quantidade;
-    const expiracaoMinutos = 15;
+    const expiracaoMinutos = 30; // Asaas trabalha com datas, não minutos exatos
     const expiresAt = new Date(Date.now() + expiracaoMinutos * 60 * 1000);
 
     // Criar pedido no banco (status pendente)
@@ -156,13 +166,12 @@ export async function POST(request: NextRequest) {
       pedido_id: pedido.id,
       lote_id: loteId,
       quantidade,
-      preco_unitario: valorTotal / quantidade, // Preço unitário com desconto
+      preco_unitario: valorTotal / quantidade,
       subtotal: valorTotal,
     });
 
     if (itemError) {
       console.error("Erro ao criar item do pedido:", itemError);
-      // Reverter pedido
       await supabase.from("pedidos").delete().eq("id", pedido.id);
       return NextResponse.json(
         { error: "Erro ao processar pedido" },
@@ -171,63 +180,61 @@ export async function POST(request: NextRequest) {
     }
 
     // =============================================
-    // INTEGRAÇÃO COM MERCADO PAGO - PIX
+    // INTEGRAÇÃO COM ASAAS - PIX
     // =============================================
-    
+
     const eventoNome = lote.eventos?.nome || "Naipe VIP";
     const descricao = `${quantidade}x Ingresso - ${eventoNome}`;
 
-    const resultadoMP = await criarPagamentoPix({
+    // 1. Criar cobrança no Asaas
+    const cobrancaResult = await criarCobrancaPix({
+      nome: session.nome,
+      email: session.email,
+      cpf: cpfLimpo, // CPF já validado e limpo
       valor: valorTotal,
       descricao: descricao,
-      email: session.email,
-      nome: session.nome,
       externalReference: pedido.id,
-      expiracaoMinutos: expiracaoMinutos,
     });
 
-    if (!resultadoMP.success) {
-      console.error("Erro ao criar PIX no Mercado Pago:", resultadoMP.error);
-      // Reverter pedido
+    if (!cobrancaResult.success) {
+      console.error("Erro ao criar cobrança Asaas:", cobrancaResult.error);
       await supabase.from("pedidos").delete().eq("id", pedido.id);
       return NextResponse.json(
-        { error: `Erro ao gerar PIX: ${resultadoMP.error}` },
+        { error: `Erro ao gerar PIX: ${cobrancaResult.error}` },
         { status: 500 }
       );
     }
 
-    const orderData = resultadoMP.data;
-    const paymentData = orderData.transactions?.payments?.[0];
-    const pixData = paymentData?.payment_method?.data;
+    const cobranca = cobrancaResult.data;
+    console.log("Cobrança Asaas criada:", cobranca.id);
 
-    // Extrair dados do PIX
-    const pixQrCode = pixData?.qr_code || "";
-    const pixQrCodeBase64 = pixData?.qr_code_base64 || "";
+    // 2. Obter QR Code PIX
+    const qrCodeResult = await obterQrCodePix(cobranca.id);
 
-    // Mapear status
-    const { pagamentoStatus } = mapearStatusPagamento(
-      orderData.status,
-      orderData.status_detail
-    );
+    if (!qrCodeResult.success) {
+      console.error("Erro ao obter QR Code Asaas:", qrCodeResult.error);
+      // Não reverter, a cobrança foi criada
+    }
 
-    // Criar registro de pagamento com dados do Mercado Pago
+    const pixData = qrCodeResult.success ? qrCodeResult.data : null;
+
+    // Criar registro de pagamento com dados do Asaas
     const { error: pagamentoError } = await supabase.from("pagamentos").insert({
       pedido_id: pedido.id,
-      mp_payment_id: orderData.id, // Order ID do Mercado Pago
+      mp_payment_id: cobranca.id, // Usando campo existente para ID do Asaas
       metodo: "pix",
-      status: pagamentoStatus,
+      status: "pending",
       valor: valorTotal,
-      pix_qr_code: pixQrCode,
-      pix_qr_code_base64: pixQrCodeBase64.startsWith("data:")
-        ? pixQrCodeBase64
-        : `data:image/png;base64,${pixQrCodeBase64}`,
+      pix_qr_code: pixData?.payload || "",
+      pix_qr_code_base64: pixData?.encodedImage 
+        ? `data:image/png;base64,${pixData.encodedImage}`
+        : "",
       pix_expiration: expiresAt.toISOString(),
-      raw_response: orderData,
+      raw_response: cobranca,
     });
 
     if (pagamentoError) {
       console.error("Erro ao criar pagamento:", pagamentoError);
-      // Não reverter, o pedido ainda é válido e podemos tentar novamente
     }
 
     // Retornar dados do pedido
@@ -248,17 +255,17 @@ export async function POST(request: NextRequest) {
         },
       },
       pix: {
-        qr_code: pixQrCode,
-        qr_code_base64: pixQrCodeBase64.startsWith("data:")
-          ? pixQrCodeBase64
-          : `data:image/png;base64,${pixQrCodeBase64}`,
-        copia_cola: pixQrCode,
+        qr_code: pixData?.payload || "",
+        qr_code_base64: pixData?.encodedImage 
+          ? `data:image/png;base64,${pixData.encodedImage}`
+          : "",
+        copia_cola: pixData?.payload || "",
         expiration: expiresAt.toISOString(),
       },
-      mercadoPago: {
-        orderId: orderData.id,
-        status: orderData.status,
-        statusDetail: orderData.status_detail,
+      asaas: {
+        paymentId: cobranca.id,
+        status: cobranca.status,
+        invoiceUrl: cobranca.invoiceUrl,
       },
     });
   } catch (error) {

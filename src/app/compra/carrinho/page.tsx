@@ -73,6 +73,22 @@ function CarrinhoContent() {
   const [erro, setErro] = useState<string | null>(null);
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const [mostrarTermos, setMostrarTermos] = useState(false);
+  const [cpf, setCpf] = useState("");
+
+  // Função para formatar CPF
+  const formatarCpf = (valor: string) => {
+    const numeros = valor.replace(/\D/g, "").slice(0, 11);
+    if (numeros.length <= 3) return numeros;
+    if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+    if (numeros.length <= 9) return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9)}`;
+  };
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCpf(formatarCpf(e.target.value));
+  };
+
+  const cpfValido = cpf.replace(/\D/g, "").length === 11;
 
   // Buscar lotes
   const fetchLotes = useCallback(async () => {
@@ -162,7 +178,7 @@ function CarrinhoContent() {
   };
 
   const handleContinuar = async () => {
-    if (!loteAtual || !evento || !aceitouTermos) return;
+    if (!loteAtual || !evento || !aceitouTermos || !cpfValido) return;
 
     setProcessando(true);
     setErro(null);
@@ -179,6 +195,7 @@ function CarrinhoContent() {
             eventoId: evento.id,
             loteId: loteSelecionado,
             quantidade,
+            cpf: cpf.replace(/\D/g, ""),
             timestamp: Date.now(),
           })
         );
@@ -194,6 +211,7 @@ function CarrinhoContent() {
         body: JSON.stringify({
           loteId: loteSelecionado,
           quantidade,
+          cpf: cpf.replace(/\D/g, ""),
         }),
       });
 
@@ -481,6 +499,37 @@ function CarrinhoContent() {
         </div>
       </motion.div>
 
+      {/* ====== CAMPO DE CPF ====== */}
+      <motion.div
+        className="mb-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.33 }}
+      >
+        <label className="block font-titulo text-xs text-off-white-soft/60 uppercase tracking-wider mb-2">
+          CPF do Comprador
+        </label>
+        <input
+          type="text"
+          value={cpf}
+          onChange={handleCpfChange}
+          placeholder="000.000.000-00"
+          className={`w-full px-4 py-3 rounded-xl bg-marrom/50 border font-texto text-off-white placeholder:text-off-white-soft/30 focus:outline-none transition-colors ${
+            cpf && !cpfValido 
+              ? "border-vermelho/50 focus:border-vermelho" 
+              : "border-marrom focus:border-amarelo/50"
+          }`}
+        />
+        {cpf && !cpfValido && (
+          <p className="mt-1 font-texto text-xs text-vermelho-light">
+            CPF deve ter 11 dígitos
+          </p>
+        )}
+        <p className="mt-1 font-texto text-[10px] text-off-white-soft/40">
+          Necessário para emissão do PIX
+        </p>
+      </motion.div>
+
       {/* ====== CHECKBOX DE TERMOS ====== */}
       <motion.div
         className="mb-6"
@@ -542,9 +591,9 @@ function CarrinhoContent() {
       <motion.button
         type="button"
         onClick={handleContinuar}
-        disabled={processando || !loteAtual || !aceitouTermos}
+        disabled={processando || !loteAtual || !aceitouTermos || !cpfValido}
         className={`w-full py-4 rounded-xl font-titulo text-base uppercase tracking-wide transition-all ${
-          processando || !loteAtual || !aceitouTermos
+          processando || !loteAtual || !aceitouTermos || !cpfValido
             ? "bg-off-white-soft/10 text-off-white-soft/30 cursor-not-allowed"
             : "bg-amarelo hover:bg-amarelo-light text-marrom-dark shadow-warm hover:shadow-glow active:scale-[0.98]"
         }`}

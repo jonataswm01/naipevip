@@ -32,7 +32,7 @@ export default function Footer() {
   return (
     <footer
       ref={ref}
-      className="relative overflow-hidden bg-[#3D261D] pt-10 pb-4"
+      className="relative overflow-hidden bg-[#3D261D] pt-10 pb-24"
     >
       {/* TARDEZINHA - Marca d'água gigante */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
