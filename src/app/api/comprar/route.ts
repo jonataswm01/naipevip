@@ -233,10 +233,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (!pixData) {
-      console.error("Erro ao obter QR Code Asaas após 3 tentativas:", qrCodeResult?.error);
+      const errorMessage = qrCodeResult && !qrCodeResult.success ? qrCodeResult.error : "Desconhecido";
+      console.error("Erro ao obter QR Code Asaas após 3 tentativas:", errorMessage);
       // Não reverter, a cobrança foi criada, mas vamos retornar erro
       return NextResponse.json(
-        { error: `Cobrança criada, mas não foi possível gerar o QR Code. Tente novamente ou entre em contato. Erro: ${qrCodeResult?.error || "Desconhecido"}` },
+        { error: `Cobrança criada, mas não foi possível gerar o QR Code. Tente novamente ou entre em contato. Erro: ${errorMessage}` },
         { status: 500 }
       );
     }
@@ -261,10 +262,12 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("=== DEBUG SALVANDO PAGAMENTO ===");
-    console.log("pix_qr_code length:", pagamentoData.pix_qr_code.length);
-    console.log("pix_qr_code_base64 length:", pagamentoData.pix_qr_code_base64.length);
-    console.log("pix_qr_code (primeiros 50 chars):", pagamentoData.pix_qr_code.substring(0, 50));
-    console.log("pix_qr_code_base64 (primeiros 50 chars):", pagamentoData.pix_qr_code_base64.substring(0, 50));
+    const pixQrCode = typeof pagamentoData.pix_qr_code === 'string' ? pagamentoData.pix_qr_code : '';
+    const pixQrCodeBase64 = typeof pagamentoData.pix_qr_code_base64 === 'string' ? pagamentoData.pix_qr_code_base64 : '';
+    console.log("pix_qr_code length:", pixQrCode.length);
+    console.log("pix_qr_code_base64 length:", pixQrCodeBase64.length);
+    console.log("pix_qr_code (primeiros 50 chars):", pixQrCode.substring(0, 50));
+    console.log("pix_qr_code_base64 (primeiros 50 chars):", pixQrCodeBase64.substring(0, 50));
 
     const { data: pagamentoInserido, error: pagamentoError } = await supabase.from("pagamentos").insert(pagamentoData).select().single();
 
