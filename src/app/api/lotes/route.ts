@@ -83,6 +83,8 @@ export async function GET() {
         data_formatada: capitalize(dataFormatada),
         horario_inicio: evento.horario_inicio,
         horario_fim: evento.horario_fim,
+        local_nome: evento.local_nome,
+        local_endereco: evento.local_endereco,
         local_bairro: evento.local_bairro,
         local_cidade: evento.local_cidade,
         classificacao: evento.classificacao,

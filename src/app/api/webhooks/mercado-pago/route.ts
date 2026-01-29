@@ -25,18 +25,6 @@ interface WebhookPayload {
 }
 
 // =============================================
-// HELPER: Gerar código único para ingresso
-// =============================================
-function gerarCodigoIngresso(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let codigo = "";
-  for (let i = 0; i < 8; i++) {
-    codigo += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return codigo;
-}
-
-// =============================================
 // HELPER: Gerar QR Code para ingresso
 // =============================================
 async function gerarQRCodeIngresso(codigo: string): Promise<string> {
@@ -93,13 +81,11 @@ async function gerarIngressos(pedidoId: string): Promise<void> {
     // Gerar ingressos para cada item
     for (const item of pedido.pedido_itens || []) {
       for (let i = 0; i < item.quantidade; i++) {
-        const codigo = gerarCodigoIngresso();
-        const qrCode = await gerarQRCodeIngresso(codigo);
-
-        const { error: ingressoError } = await supabase
+        // Inserir ingresso sem código - o trigger do banco gera automaticamente (5 dígitos)
+        const { data: ingresso, error: ingressoError } = await supabase
           .from("ingressos")
           .insert({
-            codigo: codigo,
+            // codigo será gerado automaticamente pelo trigger
             pedido_id: pedidoId,
             pedido_item_id: item.id,
             usuario_id: pedido.usuario_id,
@@ -107,11 +93,24 @@ async function gerarIngressos(pedidoId: string): Promise<void> {
             lote_id: item.lote_id,
             nome_titular: pedido.usuarios?.nome || "Participante",
             status: "ativo",
-            qr_code: qrCode,
-          });
+          })
+          .select()
+          .single();
 
-        if (ingressoError) {
+        if (ingressoError || !ingresso) {
           console.error("Erro ao criar ingresso:", ingressoError);
+          continue;
+        }
+
+        // Gerar QR Code após obter o código gerado pelo trigger
+        if (ingresso.codigo) {
+          const qrCode = await gerarQRCodeIngresso(ingresso.codigo);
+          
+          // Atualizar ingresso com QR Code
+          await supabase
+            .from("ingressos")
+            .update({ qr_code: qrCode })
+            .eq("id", ingresso.id);
         }
       }
     }

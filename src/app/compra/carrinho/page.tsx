@@ -14,6 +14,8 @@ interface Evento {
   data_evento: string;
   data_formatada: string;
   horario_inicio: string | null;
+  local_nome: string | null;
+  local_endereco: string | null;
   local_bairro: string | null;
   local_cidade: string | null;
   classificacao: string;
@@ -350,14 +352,28 @@ function CarrinhoContent() {
               <svg className="w-4 h-4 text-amarelo/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="font-texto text-sm">{evento?.data_formatada || "06 de Fevereiro"}</span>
+              <span className="font-texto text-sm">
+                {evento?.data_formatada || 
+                  (evento?.data_evento 
+                    ? new Date(evento.data_evento).toLocaleDateString("pt-BR", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      }).replace(/^\w/, (c) => c.toUpperCase())
+                    : "Carregando...")
+                }
+              </span>
             </div>
 
             <div className="flex items-center gap-2 text-off-white-soft/80">
               <svg className="w-4 h-4 text-amarelo/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="font-texto text-sm">A partir das 20h</span>
+              <span className="font-texto text-sm">
+                {evento?.horario_inicio 
+                  ? `A partir das ${evento.horario_inicio.slice(0, 5)}h`
+                  : "A partir das 20h"}
+              </span>
             </div>
 
             <div className="flex items-center gap-2 text-off-white-soft/80 col-span-2">
@@ -366,7 +382,11 @@ function CarrinhoContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span className="font-texto text-sm">
-                Centro Comunitário - Fernando Prestes, SP
+                {evento?.local_nome && evento?.local_cidade
+                  ? `${evento.local_nome} - ${evento.local_cidade}`
+                  : evento?.local_bairro && evento?.local_cidade
+                  ? `${evento.local_bairro} - ${evento.local_cidade}`
+                  : "Carregando..."}
               </span>
             </div>
 

@@ -86,14 +86,23 @@ export default function DashboardPage() {
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
+      }
 
-        // Se tem ingresso ativo, buscar local
-        if (statsData.temIngressoAtivo) {
-          const localRes = await fetch("/api/eventos/local");
-          if (localRes.ok) {
-            const localData = await localRes.json();
-            setLocal(localData);
-          }
+      // Buscar local do evento (público)
+      const lotesRes = await fetch("/api/lotes");
+      if (lotesRes.ok) {
+        const lotesData = await lotesRes.json();
+        if (lotesData.evento?.local_nome && lotesData.evento?.local_endereco) {
+          const enderecoCompleto = `${lotesData.evento.local_endereco}, ${lotesData.evento.local_bairro}, ${lotesData.evento.local_cidade}`;
+          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`;
+          
+          setLocal({
+            nome: lotesData.evento.local_nome,
+            endereco: lotesData.evento.local_endereco,
+            bairro: lotesData.evento.local_bairro || "",
+            cidade: lotesData.evento.local_cidade || "",
+            mapsUrl,
+          });
         }
       }
     } catch (error) {
@@ -202,7 +211,7 @@ export default function DashboardPage() {
           </h2>
         </div>
 
-        {stats.temIngressoAtivo && local ? (
+        {local ? (
           <div className="p-4 space-y-3">
             <div>
               <p className="text-off-white font-medium font-texto">
@@ -230,12 +239,12 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="p-4 flex items-center gap-4">
-            <div className="text-off-white-soft/40">{Icons.lock}</div>
+            <div className="text-off-white-soft/40">{Icons.location}</div>
             <div>
               <p className="text-off-white-soft/80 font-texto text-sm">
-                O endereço completo será liberado após a confirmação do seu ingresso.
+                Centro Comunitário - Fernando Prestes, São Paulo
               </p>
-              {!stats.temIngressoAtivo && stats.totalIngressos === 0 && (
+              {stats.totalIngressos === 0 && (
                 <Link
                   href="/#ingressos"
                   className="inline-block mt-2 text-amarelo font-texto text-sm hover:underline"

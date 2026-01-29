@@ -59,7 +59,7 @@ CREATE TABLE eventos (
   horario_inicio TIME,
   horario_fim TIME,
   local_nome VARCHAR(255),
-  local_endereco TEXT, -- Revelado apenas após compra
+  local_endereco TEXT,
   local_bairro VARCHAR(100),
   local_cidade VARCHAR(100),
   classificacao VARCHAR(10) DEFAULT '18+',
@@ -362,12 +362,12 @@ INSERT INTO eventos (
   'Naipe VIP',
   'naipe-vip',
   'Uma festa pra curtir o pôr do sol e atravessar a noite no clima do carnaval.',
-  '2026-02-06', -- Ajuste a data do evento
-  '16:00',
-  'Local Secreto',
-  'Região Central',
+  '2026-02-06',
+  '20:00',
+  'Centro Comunitário',
+  'Fernando Prestes',
   'São Paulo',
-  'Endereço completo revelado após a compra', -- Endereço real aqui
+  'Centro Comunitário - Fernando Prestes, São Paulo',
   '18+'
 );
 

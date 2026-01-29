@@ -21,7 +21,7 @@ export default function SectionInfo() {
         </svg>
       ),
       label: 'Data',
-      value: '06 de Fevereiro',
+      value: 'Seis de Fevereiro',
     },
     {
       icon: (
@@ -44,7 +44,7 @@ export default function SectionInfo() {
       ),
       label: 'Local',
       value: 'Centro Comunitário',
-      sublabel: 'Fernando Prestes - SP',
+      sublabel: 'Fernando Prestes, São Paulo',
     },
     {
       icon: (

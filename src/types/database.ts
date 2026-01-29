@@ -255,6 +255,7 @@ export type Database = {
           pedido_id: string;
           mp_payment_id: string | null;
           mp_preference_id: string | null;
+          asaas_payment_id: string | null;
           metodo: string;
           status: PagamentoStatus;
           valor: number;
@@ -271,6 +272,7 @@ export type Database = {
           pedido_id: string;
           mp_payment_id?: string | null;
           mp_preference_id?: string | null;
+          asaas_payment_id?: string | null;
           metodo?: string;
           status?: PagamentoStatus;
           valor: number;
@@ -287,6 +289,7 @@ export type Database = {
           pedido_id?: string;
           mp_payment_id?: string | null;
           mp_preference_id?: string | null;
+          asaas_payment_id?: string | null;
           metodo?: string;
           status?: PagamentoStatus;
           valor?: number;

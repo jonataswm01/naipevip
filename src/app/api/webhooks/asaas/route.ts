@@ -82,19 +82,11 @@ async function gerarIngressos(pedidoId: string): Promise<void> {
     // Gerar ingressos para cada item
     for (const item of pedido.pedido_itens || []) {
       for (let i = 0; i < item.quantidade; i++) {
-        // Gerar código único (o trigger do banco também gera, mas vamos garantir)
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let codigo = "";
-        for (let j = 0; j < 8; j++) {
-          codigo += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        const qrCode = await gerarQRCodeIngresso(codigo);
-
-        const { error: ingressoError } = await supabase
+        // Inserir ingresso sem código - o trigger do banco gera automaticamente (5 dígitos)
+        const { data: ingresso, error: ingressoError } = await supabase
           .from("ingressos")
           .insert({
-            codigo: codigo,
+            // codigo será gerado automaticamente pelo trigger
             pedido_id: pedidoId,
             pedido_item_id: item.id,
             usuario_id: pedido.usuario_id,
@@ -102,11 +94,24 @@ async function gerarIngressos(pedidoId: string): Promise<void> {
             lote_id: item.lote_id,
             nome_titular: pedido.usuarios?.nome || "Participante",
             status: "ativo",
-            qr_code: qrCode,
-          });
+          })
+          .select()
+          .single();
 
-        if (ingressoError) {
+        if (ingressoError || !ingresso) {
           console.error("Erro ao criar ingresso:", ingressoError);
+          continue;
+        }
+
+        // Gerar QR Code após obter o código gerado pelo trigger
+        if (ingresso.codigo) {
+          const qrCode = await gerarQRCodeIngresso(ingresso.codigo);
+          
+          // Atualizar ingresso com QR Code
+          await supabase
+            .from("ingressos")
+            .update({ qr_code: qrCode })
+            .eq("id", ingresso.id);
         }
       }
     }
@@ -143,34 +148,110 @@ export async function POST(request: NextRequest) {
 
     const payment = body.payment;
     const pedidoId = payment.externalReference;
+    const asaasPaymentId = payment.id;
+
+    // =============================================
+    // LOGS DETALHADOS PARA DEBUG
+    // =============================================
+    console.log("=== WEBHOOK ASAAS - DADOS RECEBIDOS ===");
+    console.log("Payment ID (ASAS):", asaasPaymentId);
+    console.log("Pedido ID (externalReference):", pedidoId);
+    console.log("Status ASAS:", payment.status);
+    console.log("Valor:", payment.value);
 
     if (!pedidoId) {
-      console.error("externalReference não encontrado no pagamento");
+      console.error("❌ ERRO: externalReference não encontrado no pagamento");
+      console.error("Payment completo:", JSON.stringify(payment, null, 2));
       return NextResponse.json({ received: true, error: "Pedido não identificado" });
     }
 
-    // Mapear status
-    const { pagamentoStatus, pedidoStatus } = mapearStatusAsaas(payment.status);
-
-    console.log(
-      `Atualizando pedido ${pedidoId}: status=${pedidoStatus}, pagamento=${pagamentoStatus}`
-    );
-
-    // Atualizar pagamento no banco
-    const { error: pagamentoError } = await supabase
+    // =============================================
+    // BUSCAR PAGAMENTO NO BANCO (BUSCA ROBUSTA)
+    // =============================================
+    // Buscar por pedido_id OU por asaas_payment_id (caso o externalReference não corresponda)
+    const { data: pagamentoExistente, error: buscaError } = await supabase
       .from("pagamentos")
-      .update({
-        status: pagamentoStatus,
-        raw_response: payment,
-        ...(pagamentoStatus === "approved" && { pago_em: new Date().toISOString() }),
-      })
-      .eq("pedido_id", pedidoId);
+      .select("*")
+      .or(`pedido_id.eq.${pedidoId},asaas_payment_id.eq.${asaasPaymentId}`)
+      .single();
 
-    if (pagamentoError) {
-      console.error("Erro ao atualizar pagamento:", pagamentoError);
+    if (buscaError || !pagamentoExistente) {
+      console.error("❌ ERRO: Pagamento não encontrado no banco!");
+      console.error("Buscado por pedido_id:", pedidoId);
+      console.error("Buscado por asaas_payment_id:", asaasPaymentId);
+      console.error("Erro da busca:", buscaError);
+      
+      // Tentar buscar apenas por pedido_id para debug
+      const { data: pagamentoPorPedido } = await supabase
+        .from("pagamentos")
+        .select("*")
+        .eq("pedido_id", pedidoId)
+        .maybeSingle();
+      
+      console.log("Pagamento encontrado por pedido_id:", pagamentoPorPedido);
+      
+      return NextResponse.json({ 
+        received: true, 
+        error: "Pagamento não encontrado no banco",
+        pedidoId,
+        asaasPaymentId
+      });
     }
 
-    // Atualizar pedido no banco
+    console.log("✅ Pagamento encontrado no banco!");
+    console.log("Pagamento ID:", pagamentoExistente.id);
+    console.log("Status atual no banco:", pagamentoExistente.status);
+
+    // =============================================
+    // MAPEAR STATUS DO ASAS
+    // =============================================
+    const { pagamentoStatus, pedidoStatus } = mapearStatusAsaas(payment.status);
+
+    console.log("=== MAPEAMENTO DE STATUS ===");
+    console.log("Status ASAS recebido:", payment.status);
+    console.log("Status mapeado (pagamento):", pagamentoStatus);
+    console.log("Status mapeado (pedido):", pedidoStatus);
+
+    // =============================================
+    // ATUALIZAR PAGAMENTO NO BANCO
+    // =============================================
+    const updateData: Record<string, unknown> = {
+      status: pagamentoStatus,
+      raw_response: payment,
+    };
+
+    // Atualizar asaas_payment_id se não estiver preenchido
+    if (!pagamentoExistente.asaas_payment_id && asaasPaymentId) {
+      updateData.asaas_payment_id = asaasPaymentId;
+      console.log("✅ Atualizando asaas_payment_id:", asaasPaymentId);
+    }
+
+    // Adicionar data de pagamento se aprovado
+    if (pagamentoStatus === "approved") {
+      updateData.pago_em = new Date().toISOString();
+      console.log("✅ Pagamento aprovado! Adicionando pago_em");
+    }
+
+    const { error: pagamentoError } = await supabase
+      .from("pagamentos")
+      .update(updateData)
+      .eq("id", pagamentoExistente.id);
+
+    if (pagamentoError) {
+      console.error("❌ ERRO CRÍTICO ao atualizar pagamento:", pagamentoError);
+      console.error("Dados que tentou atualizar:", updateData);
+      return NextResponse.json({ 
+        received: true, 
+        error: "Erro ao atualizar pagamento",
+        details: pagamentoError.message
+      });
+    }
+
+    console.log("✅ Pagamento atualizado com sucesso!");
+
+    // =============================================
+    // ATUALIZAR PEDIDO NO BANCO
+    // =============================================
     const { error: pedidoError } = await supabase
       .from("pedidos")
       .update({
@@ -179,20 +260,45 @@ export async function POST(request: NextRequest) {
       .eq("id", pedidoId);
 
     if (pedidoError) {
-      console.error("Erro ao atualizar pedido:", pedidoError);
+      console.error("❌ ERRO CRÍTICO ao atualizar pedido:", pedidoError);
+      return NextResponse.json({ 
+        received: true, 
+        error: "Erro ao atualizar pedido",
+        details: pedidoError.message
+      });
     }
 
-    // Se pagamento aprovado, gerar ingressos
+    console.log("✅ Pedido atualizado com sucesso!");
+
+    // =============================================
+    // GERAR INGRESSOS SE PAGAMENTO APROVADO
+    // =============================================
     if (pagamentoStatus === "approved") {
-      await gerarIngressos(pedidoId);
+      console.log("✅ Pagamento aprovado! Iniciando geração de ingressos...");
+      try {
+        await gerarIngressos(pedidoId);
+        console.log("✅ Ingressos gerados com sucesso!");
+      } catch (ingressoError) {
+        console.error("❌ ERRO ao gerar ingressos:", ingressoError);
+        // Não retornar erro aqui, pois o pagamento já foi atualizado
+        // Os ingressos podem ser gerados manualmente depois se necessário
+      }
+    } else {
+      console.log("⏳ Pagamento ainda não aprovado. Status:", pagamentoStatus);
     }
 
-    // Retornar sucesso
+    // =============================================
+    // RETORNAR SUCESSO
+    // =============================================
+    console.log("=== WEBHOOK PROCESSADO COM SUCESSO ===");
     return NextResponse.json({
       received: true,
-      paymentId: payment.id,
+      success: true,
+      paymentId: asaasPaymentId,
       pedidoId: pedidoId,
       status: pedidoStatus,
+      pagamentoStatus: pagamentoStatus,
+      ingressosGerados: pagamentoStatus === "approved",
     });
   } catch (error) {
     console.error("Erro no webhook do Asaas:", error);

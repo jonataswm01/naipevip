@@ -119,7 +119,7 @@ export default function IngressoDetalhadoPage() {
   };
 
   const formatTime = (timeString: string | null) => {
-    if (!timeString) return "A partir do pôr do sol";
+    if (!timeString) return "A partir das 20h";
     return timeString.slice(0, 5);
   };
 

@@ -214,12 +214,9 @@ export default function ComprasSucesso({
   };
 
   // Determinar se deve usar local do evento ou localEvento
-  // Sempre prioriza os dados do evento se o localEvento for "Local Secreto" ou não existir
+  // Prioriza os dados do evento se disponíveis
   const localParaExibir = 
-    evento.local_nome && 
-    evento.local_endereco && 
-    evento.local_nome !== "Local Secreto" &&
-    evento.local_endereco !== "Endereço completo revelado após a compra"
+    evento.local_nome && evento.local_endereco
       ? {
           nome: evento.local_nome,
           endereco: evento.local_endereco,
@@ -229,9 +226,7 @@ export default function ComprasSucesso({
             `${evento.local_endereco}, ${evento.local_bairro || ""}, ${evento.local_cidade || ""}`
           )}`,
         }
-      : localEvento && 
-        localEvento.nome !== "Local Secreto" && 
-        localEvento.endereco !== "Endereço completo revelado após a compra"
+      : localEvento
       ? localEvento
       : null;
 

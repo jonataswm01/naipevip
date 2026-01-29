@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
     // Criar registro de pagamento com dados do Asaas
     const pagamentoData: Record<string, unknown> = {
       pedido_id: pedido.id,
-      mp_payment_id: cobranca.id, // Usando campo existente para ID do Asaas
+      asaas_payment_id: cobranca.id, // ID do pagamento no ASAS
       metodo: "pix",
       status: "pending",
       valor: valorTotal,
