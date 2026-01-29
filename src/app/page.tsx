@@ -26,10 +26,10 @@ export default function Home() {
         <SectionInfo />
         {/* Seção 5 - Bar & Ambiente */}
         <SectionBar />
-        {/* Seção 6 - O Que É o Naipe VIP */}
-        <SectionAbout />
-        {/* Seção 7 - Música & Experiência */}
+        {/* Seção 6 - Música & Experiência */}
         <SectionMusic />
+        {/* Seção 7 - O Que É o Naipe VIP */}
+        <SectionAbout />
         {/* Seção 8 - CTA Final */}
         <SectionCTA />
         {/* Footer */}
