@@ -91,7 +91,7 @@ const securityItems: SecurityItem[] = [
   },
   {
     icon: <IconLocation />,
-    text: 'Local revelado após a compra',
+    text: 'Centro Comunitário - Fernando Prestes, São Paulo',
   },
 ];
 
