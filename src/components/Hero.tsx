@@ -44,7 +44,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="flex flex-wrap gap-3 justify-center items-center text-off-white-soft">
-            <span className="font-texto">📅 Seis de Fevereiro</span>
+            <span className="font-texto">📅 6 de Fevereiro</span>
             <span className="text-amarelo hidden sm:block">•</span>
             <span className="font-texto">⏰ A partir das 20h</span>
           </div>
