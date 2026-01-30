@@ -2,74 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { getWhatsAppUrl } from '@/lib/whatsapp';
-
 interface NavItem {
   id: string;
   label: string;
   icon: string;
   href: string;
   highlight?: boolean;
-  isExternal?: boolean;
-  isExternalLink?: boolean; // abre em nova aba (ex: WhatsApp)
+  isExternalLink?: boolean;
   iconOnly?: boolean;
 }
 
+// 2 CTAs: Atrações (scroll para quem toca) + Ingressos (scroll para seção de ingressos)
+const navItems: NavItem[] = [
+  {
+    id: 'djs',
+    label: 'Atrações',
+    icon: '🎧',
+    href: '#djs',
+  },
+  {
+    id: 'ingressos',
+    label: 'Ingressos',
+    icon: '🎟️',
+    href: '#ingressos',
+    highlight: true,
+  },
+];
+
 export default function NavBar() {
-  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState('inicio');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-
-  // Verifica se usuário está logado
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const data = await response.json();
-          setIsLoggedIn(true);
-          setUserName(data.usuario.nome.split(' ')[0]); // Primeiro nome
-        } else {
-          setIsLoggedIn(false);
-          setUserName('');
-        }
-      } catch {
-        setIsLoggedIn(false);
-        setUserName('');
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  // Itens de navegação dinâmicos
-  const navItems: NavItem[] = [
-    {
-      id: 'inicio',
-      label: '',
-      icon: '🏠',
-      href: '#',
-      iconOnly: true,
-    },
-    {
-      id: 'ingressos',
-      label: 'Ingressos',
-      icon: '🎟️',
-      href: getWhatsAppUrl(),
-      highlight: true,
-      isExternalLink: true,
-    },
-    {
-      id: 'entrar',
-      label: isLoggedIn ? userName : 'Entrar',
-      icon: '👤',
-      href: isLoggedIn ? '/dashboard' : '/login',
-      isExternal: true,
-    },
-  ];
+  const [activeSection, setActiveSection] = useState('djs');
 
   // Detecta scroll para mostrar/ocultar navbar
   useEffect(() => {
@@ -85,10 +47,10 @@ export default function NavBar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Detecta seção ativa baseado no scroll
+  // Detecta seção ativa baseado no scroll (djs, ingressos)
   useEffect(() => {
     const handleSectionDetection = () => {
-      const sections = ['ingressos'];
+      const sections = ['djs', 'ingressos'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -102,28 +64,18 @@ export default function NavBar() {
         }
       }
 
-      // Se não está em nenhuma seção específica, está no início
-      if (window.scrollY < window.innerHeight) {
-        setActiveSection('inicio');
-      }
+      // No topo ou entre seções: destaca Atrações
+      setActiveSection('djs');
     };
 
     window.addEventListener('scroll', handleSectionDetection, { passive: true });
     return () => window.removeEventListener('scroll', handleSectionDetection);
   }, []);
 
-  // Smooth scroll para âncoras
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
-    // Link externo em nova aba (ex: WhatsApp)
     if (item.isExternalLink) {
       e.preventDefault();
       window.open(item.href, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    // Se for link externo (login/dashboard), usar navegação normal
-    if (item.isExternal) {
-      e.preventDefault();
-      router.push(item.href);
       return;
     }
 
@@ -157,7 +109,7 @@ export default function NavBar() {
           transition={{ duration: 0.3, ease: 'easeOut' }}
         >
           {/* Container da navbar com efeito glass */}
-          <div className="flex items-center gap-1 px-2 py-2 bg-marrom-dark/85 backdrop-blur-md border border-amarelo/20 rounded-full shadow-warm">
+          <div className="flex items-center gap-5 px-3 py-2 bg-marrom-dark/85 backdrop-blur-md border border-amarelo/20 rounded-full shadow-warm">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               const isHighlight = item.highlight;

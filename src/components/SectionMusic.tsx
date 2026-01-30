@@ -94,20 +94,18 @@ export default function SectionMusic() {
             Música do começo ao fim.
           </motion.h2>
 
-          {/* Pills de clima */}
-          <motion.div
-            className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6"
+          {/* Marcador ° entre os termos */}
+          <motion.p
+            className="font-texto text-sm sm:text-base text-off-white/90 uppercase tracking-wider mb-6"
             variants={itemVariants}
           >
-            {climaTags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center px-4 py-2 rounded-full bg-off-white/10 border border-off-white/20 font-texto text-sm sm:text-base text-off-white uppercase tracking-wider"
-              >
+            {climaTags.map((tag, i) => (
+              <span key={tag}>
+                {i > 0 && <span className="mx-2 text-amarelo/80">°</span>}
                 {tag}
               </span>
             ))}
-          </motion.div>
+          </motion.p>
 
           <motion.p
             className="font-texto text-lg md:text-xl text-off-white leading-relaxed"
