@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { UsuarioPublico } from "@/types/database";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 
 // Ícones
 const Icons = {
@@ -245,12 +246,14 @@ export default function DashboardPage() {
                 Centro Comunitário - Fernando Prestes, São Paulo
               </p>
               {stats.totalIngressos === 0 && (
-                <Link
-                  href="/#ingressos"
+                <a
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-block mt-2 text-amarelo font-texto text-sm hover:underline"
                 >
                   Comprar ingresso
-                </Link>
+                </a>
               )}
             </div>
           </div>
@@ -266,12 +269,14 @@ export default function DashboardPage() {
           <p className="text-off-white-soft/80 font-texto text-sm mb-4">
             Não fique de fora do Naipe VIP
           </p>
-          <Link
-            href="/#ingressos"
+          <a
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-amarelo text-marrom-dark px-6 py-3 rounded-lg font-titulo font-semibold hover:bg-amarelo-light transition-colors"
           >
             Comprar Ingresso
-          </Link>
+          </a>
         </div>
       )}
     </div>

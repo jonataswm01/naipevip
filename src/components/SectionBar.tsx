@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 export default function SectionBar() {
   const { ref, inView } = useInView({
@@ -42,7 +43,9 @@ export default function SectionBar() {
 
         {/* CTA sutil */}
         <motion.a
-          href="#ingressos"
+          href={getWhatsAppUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-block mt-8 font-texto text-base md:text-lg text-off-white/70 hover:text-off-white border-b border-off-white/30 hover:border-off-white/60 pb-1 transition-all duration-300"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : { opacity: 0 }}

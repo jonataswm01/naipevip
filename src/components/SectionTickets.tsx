@@ -2,7 +2,7 @@
 
 import { motion, Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useRouter } from 'next/navigation';
+import { getWhatsAppUrlIngressos } from '@/lib/whatsapp';
 
 // =============================================
 // TYPES
@@ -61,7 +61,6 @@ const Icons = {
 // =============================================
 
 export default function SectionTickets() {
-  const router = useRouter();
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -87,9 +86,9 @@ export default function SectionTickets() {
     },
   };
 
-  // Handler de compra - vai para o carrinho com quantidade pré-selecionada
+  // Abre WhatsApp com mensagem já informando a quantidade de ingressos
   const handleComprar = (quantity: number) => {
-    router.push(`/compra/carrinho?qtd=${quantity}`);
+    window.open(getWhatsAppUrlIngressos(quantity), '_blank', 'noopener,noreferrer');
   };
 
   return (

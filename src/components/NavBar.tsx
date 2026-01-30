@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 interface NavItem {
   id: string;
@@ -12,6 +12,7 @@ interface NavItem {
   href: string;
   highlight?: boolean;
   isExternal?: boolean;
+  isExternalLink?: boolean; // abre em nova aba (ex: WhatsApp)
   iconOnly?: boolean;
 }
 
@@ -57,8 +58,9 @@ export default function NavBar() {
       id: 'ingressos',
       label: 'Ingressos',
       icon: '🎟️',
-      href: '#ingressos',
+      href: getWhatsAppUrl(),
       highlight: true,
+      isExternalLink: true,
     },
     {
       id: 'entrar',
@@ -112,6 +114,12 @@ export default function NavBar() {
 
   // Smooth scroll para âncoras
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
+    // Link externo em nova aba (ex: WhatsApp)
+    if (item.isExternalLink) {
+      e.preventDefault();
+      window.open(item.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
     // Se for link externo (login/dashboard), usar navegação normal
     if (item.isExternal) {
       e.preventDefault();

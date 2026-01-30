@@ -3,6 +3,7 @@
 import { motion, Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useState, useRef } from 'react';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 /* ============================================
    ONDE ADICIONAR FOTOS E VÍDEOS DOS DJs
@@ -225,7 +226,9 @@ export default function SectionDJs() {
 
         <motion.div className="mt-10 text-center" variants={cardVariants}>
           <a
-            href="#ingressos"
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block font-titulo text-base md:text-lg text-off-white hover:text-amarelo uppercase tracking-wider px-6 py-3 border border-off-white/50 hover:border-amarelo rounded-lg transition-all duration-300 hover:bg-amarelo/5"
           >
             Garantir meu ingresso

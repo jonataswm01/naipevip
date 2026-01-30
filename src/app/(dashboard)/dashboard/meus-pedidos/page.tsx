@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 
 interface Pedido {
   id: string;
@@ -132,12 +133,14 @@ export default function MeusPedidosPage() {
           <p className="text-off-white-soft/60 font-texto text-sm mb-4">
             Você ainda não fez nenhuma compra
           </p>
-          <Link
-            href="/#ingressos"
+          <a
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-amarelo text-marrom-dark px-6 py-2 rounded-lg font-titulo font-semibold hover:bg-amarelo-light transition-colors"
           >
             Comprar Ingresso
-          </Link>
+          </a>
         </div>
       ) : (
         <div className="space-y-4">

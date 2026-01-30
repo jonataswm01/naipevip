@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 export default function SectionInfo() {
   const { ref, inView } = useInView({
@@ -136,7 +137,9 @@ export default function SectionInfo() {
           transition={{ duration: 0.6, delay: 1.1, ease: 'easeOut' }}
         >
           <a
-            href="#ingressos"
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block font-titulo text-base md:text-lg text-off-white/80 hover:text-off-white uppercase tracking-wider px-6 py-3 border border-off-white/25 hover:border-off-white/50 rounded-lg transition-all duration-300 hover:bg-off-white/5"
           >
             Ver ingressos disponíveis

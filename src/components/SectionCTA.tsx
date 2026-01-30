@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import Link from 'next/link';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 export default function SectionCTA() {
   const { ref, inView } = useInView({
@@ -68,7 +68,7 @@ export default function SectionCTA() {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.8, ease: 'easeOut' }}
         >
-          <Link href="/compra/carrinho">
+          <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer">
             <motion.span 
               className="inline-block bg-amarelo hover:bg-amarelo-light text-marrom-dark font-titulo text-lg sm:text-xl uppercase tracking-wide px-10 sm:px-12 py-4 sm:py-5 rounded-lg transition-colors shadow-warm cursor-pointer"
               animate={{
@@ -88,7 +88,7 @@ export default function SectionCTA() {
             >
               Garantir meu ingresso
             </motion.span>
-          </Link>
+          </a>
         </motion.div>
       </motion.div>
     </section>

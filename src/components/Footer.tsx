@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 // Ícone Instagram
 const IconInstagram = () => (
@@ -19,7 +20,7 @@ export default function Footer() {
   });
 
   const navLinks = [
-    { label: 'Reservar Ingresso', href: '#ingressos' },
+    { label: 'Reservar Ingresso', href: getWhatsAppUrl(), external: true },
     { label: 'Atrações', href: '#musica' },
     { label: 'Informações', href: '#info' },
   ];
@@ -61,6 +62,7 @@ export default function Footer() {
             <span key={link.label} className="flex items-center gap-3 sm:gap-4">
               <motion.a
                 href={link.href}
+                {...(link.external && { target: '_blank', rel: 'noopener noreferrer' })}
                 className={`font-texto text-sm sm:text-base transition-colors duration-300 ${
                   index === 0 
                     ? 'text-amarelo hover:text-amarelo-light' 
