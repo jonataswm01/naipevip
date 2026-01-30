@@ -4,8 +4,6 @@ import { motion, Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { getWhatsAppUrl } from '@/lib/whatsapp';
 
-const climaTags = ['Pré-carnaval', 'Música', 'Festa'];
-
 export default function SectionAbout() {
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -69,24 +67,11 @@ export default function SectionAbout() {
         </motion.div>
 
         <motion.h2
-          className="font-titulo text-3xl md:text-4xl text-cream uppercase tracking-wide mb-4"
+          className="font-titulo text-3xl md:text-4xl text-cream uppercase tracking-wide mb-6"
           variants={itemVariants}
         >
           Não é só mais uma festa.
         </motion.h2>
-
-        {/* Marcador ° entre os termos */}
-        <motion.p
-          className="font-texto text-sm sm:text-base text-off-white/90 uppercase tracking-wider mb-6"
-          variants={itemVariants}
-        >
-          {climaTags.map((tag, i) => (
-            <span key={tag}>
-              {i > 0 && <span className="mx-2 text-amarelo/80">°</span>}
-              {tag}
-            </span>
-          ))}
-        </motion.p>
 
         <motion.p
           className="font-texto text-lg md:text-xl text-off-white leading-relaxed"
