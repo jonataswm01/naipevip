@@ -54,7 +54,7 @@ Criar impacto visual imediato, comunicar o essencial e incentivar o primeiro cli
 
 ---
 
-### 🎭 Seção 2 – O Que É a Tardezinha
+### 🎭 Seção 2 – O Que É o Naipe VIP
 
 **Objetivo:**
 Criar identidade emocional e despertar curiosidade.

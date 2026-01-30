@@ -9,8 +9,8 @@
 
 | Contexto | Mensagem pré-preenchida |
 |----------|--------------------------|
-| **Genérico** (Hero, Security, About, DJs, Bar, CTA, Footer, NavBar, Dashboard) | "Olá! Gostaria de garantir meu ingresso para o Naipe VIP / Tardezinha Pré-Carnaval." |
-| **Seção Ingressos** (botão "Garantir" em cada card) | "Olá! Gostaria de garantir **X ingresso(s)** para o Naipe VIP / Tardezinha Pré-Carnaval." (X = 1, 2 ou 4 conforme o card) |
+| **Genérico** (Hero, Security, About, DJs, Bar, CTA, Footer, NavBar, Dashboard) | "Olá! Gostaria de garantir meu ingresso para o Naipe VIP Pré-Carnaval." |
+| **Seção Ingressos** (botão "Garantir" em cada card) | "Olá! Gostaria de garantir **X ingresso(s)** para o Naipe VIP Pré-Carnaval." (X = 1, 2 ou 4 conforme o card) |
 
 ---
 

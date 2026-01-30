@@ -1,4 +1,4 @@
-# Stack Técnica – Tardezinha Pré-Carnaval
+# Stack Técnica – Naipe VIP Pré-Carnaval
 
 ## 1. Visão Geral do Projeto
 

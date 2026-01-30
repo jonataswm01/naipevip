@@ -1,8 +1,8 @@
-# Identidade Visual – Tardezinha Pré-Carnaval
+# Identidade Visual – Naipe VIP Pré-Carnaval
 
 ## 1. Propósito da Identidade Visual
 
-A identidade visual do evento **Tardezinha Pré-Carnaval** não tem como objetivo apenas “decorar” o site, mas **criar uma experiência imersiva**, capaz de transmitir desejo, mistério e valor cultural. O site deve funcionar como uma extensão viva do cartaz artístico, carregando alma, narrativa e sensorialidade.
+A identidade visual do evento **Naipe VIP Pré-Carnaval** não tem como objetivo apenas “decorar” o site, mas **criar uma experiência imersiva**, capaz de transmitir desejo, mistério e valor cultural. O site deve funcionar como uma extensão viva do cartaz artístico, carregando alma, narrativa e sensorialidade.
 
 O princípio central é:
 

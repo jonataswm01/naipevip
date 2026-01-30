@@ -6,7 +6,7 @@ export const WHATSAPP_NUMBER = '5516996130592';
 
 /** Mensagem padrão quando não se especifica quantidade */
 const MENSAGEM_PADRAO =
-  'Olá! Gostaria de garantir meu ingresso para o Naipe VIP / Tardezinha Pré-Carnaval.';
+  'Olá! Gostaria de garantir meu ingresso para o Naipe VIP Pré-Carnaval.';
 
 /**
  * Gera o link do WhatsApp com mensagem opcional.
@@ -22,6 +22,6 @@ export function getWhatsAppUrl(texto: string = MENSAGEM_PADRAO): string {
  */
 export function getWhatsAppUrlIngressos(quantidade: number): string {
   const qtd = quantidade === 1 ? '1 ingresso' : `${quantidade} ingressos`;
-  const texto = `Olá! Gostaria de garantir ${qtd} para o Naipe VIP / Tardezinha Pré-Carnaval.`;
+  const texto = `Olá! Gostaria de garantir ${qtd} para o Naipe VIP Pré-Carnaval.`;
   return getWhatsAppUrl(texto);
 }

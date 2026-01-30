@@ -38,7 +38,7 @@ CTA oficial:
 ### 🔥 Seção 1 – Hero
 
 **Headline (H1):**
-Tardezinha Pré-Carnaval
+Naipe VIP Pré-Carnaval
 
 **Subheadline:**
 Uma festa pra curtir o pôr do sol e atravessar a noite no clima do carnaval.
@@ -53,7 +53,7 @@ Garantir meu ingresso
 
 ---
 
-### 🎭 Seção 2 – O Que É a Tardezinha
+### 🎭 Seção 2 – O Que É o Naipe VIP
 
 **Título:**
 Não é só mais uma festa.
