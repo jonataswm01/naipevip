@@ -1,7 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+
+const climaTags = ['Pré-carnaval', 'Música', 'Festa'];
 
 export default function SectionAbout() {
   const { ref, inView } = useInView({
@@ -9,37 +11,100 @@ export default function SectionAbout() {
     threshold: 0.25,
   });
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: 'easeOut' },
+    },
+  };
+
   return (
     <section
+      id="about"
       className="bg-section-texture texture-grain min-h-[70vh] py-24 md:py-32 px-6 relative overflow-hidden flex items-center"
       ref={ref}
     >
       <div className="absolute inset-0 opacity-40 bg-pattern" aria-hidden="true" />
+
       <motion.div
         className="relative z-10 max-w-lg mx-auto text-center"
-        initial={{ opacity: 0, y: 24 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
+        variants={containerVariants}
+        initial="hidden"
+        animate={inView ? 'visible' : 'hidden'}
       >
-        <h2 className="font-titulo text-3xl md:text-4xl text-cream uppercase tracking-wide mb-5">
-          Não é só mais uma festa.
-        </h2>
-        <p className="font-texto text-lg md:text-xl text-off-white leading-relaxed">
-          É encontro, música e clima de carnaval, do jeito que a tarde pede e a
-          noite continua.
-        </p>
-
-        {/* CTA sutil */}
-        <motion.a
-          href="#ingressos"
-          className="inline-block mt-6 font-texto text-base md:text-lg text-off-white/70 hover:text-off-white border-b border-off-white/30 hover:border-off-white/60 pb-1 transition-all duration-300"
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.6, delay: 0.5, ease: 'easeOut' }}
-          whileHover={{ y: -2 }}
+        {/* Ícone com animação sutil (vibe festa / pré-carnaval) */}
+        <motion.div
+          className="flex justify-center mb-4 text-cream/80"
+          variants={itemVariants}
+          animate={inView ? { scale: [1, 1.03, 1] } : {}}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          Garantir meu ingresso
-        </motion.a>
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <circle cx="32" cy="32" r="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
+            <path d="M32 18v6M32 40v6M18 32h6M40 32h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M24 24l4 4M40 40l4 4M40 24l-4 4M24 40l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+            <circle cx="32" cy="32" r="4" fill="currentColor" opacity="0.6" />
+          </svg>
+        </motion.div>
+
+        <motion.h2
+          className="font-titulo text-3xl md:text-4xl text-cream uppercase tracking-wide mb-4"
+          variants={itemVariants}
+        >
+          Não é só mais uma festa.
+        </motion.h2>
+
+        {/* Pills: pré-carnaval, música, festa */}
+        <motion.div
+          className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6"
+          variants={itemVariants}
+        >
+          {climaTags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center px-4 py-2 rounded-full bg-off-white/10 border border-off-white/20 font-texto text-sm sm:text-base text-off-white uppercase tracking-wider"
+            >
+              {tag}
+            </span>
+          ))}
+        </motion.div>
+
+        <motion.p
+          className="font-texto text-lg md:text-xl text-off-white leading-relaxed"
+          variants={itemVariants}
+        >
+          É música e clima de pré-carnaval, do jeito que a tarde pede e a noite continua.
+        </motion.p>
+
+        {/* CTA no estilo da seção Música */}
+        <motion.div className="mt-8" variants={itemVariants}>
+          <a
+            href="#ingressos"
+            className="inline-block font-titulo text-base md:text-lg text-off-white hover:text-amarelo uppercase tracking-wider px-6 py-3 border border-off-white/50 hover:border-amarelo rounded-lg transition-all duration-300 hover:bg-amarelo/5"
+          >
+            Garantir meu ingresso
+          </a>
+        </motion.div>
       </motion.div>
 
       <div

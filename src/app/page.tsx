@@ -1,6 +1,7 @@
 import Hero from '@/components/Hero';
 import SectionAbout from '@/components/SectionAbout';
 import SectionMusic from '@/components/SectionMusic';
+import SectionDJs from '@/components/SectionDJs';
 import SectionBar from '@/components/SectionBar';
 import SectionInfo from '@/components/SectionInfo';
 import SectionTickets from '@/components/SectionTickets';
@@ -28,9 +29,11 @@ export default function Home() {
         <SectionBar />
         {/* Seção 6 - Música & Experiência */}
         <SectionMusic />
-        {/* Seção 7 - O Que É o Naipe VIP */}
+        {/* Seção 7 - DJs (fotos e vídeos) */}
+        <SectionDJs />
+        {/* Seção 8 - O Que É o Naipe VIP */}
         <SectionAbout />
-        {/* Seção 8 - CTA Final */}
+        {/* Seção 9 - CTA Final */}
         <SectionCTA />
         {/* Footer */}
         <Footer />

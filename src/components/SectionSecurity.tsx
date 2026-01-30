@@ -15,16 +15,6 @@ const IconPix = () => (
   </svg>
 );
 
-// Ícone Mercado Pago (carteira/wallet estilizada)
-const IconMercadoPago = () => (
-  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="6" width="22" height="16" rx="3" stroke="currentColor" strokeWidth="2" fill="none"/>
-    <path d="M3 11H25" stroke="currentColor" strokeWidth="2"/>
-    <circle cx="20" cy="17" r="2" fill="currentColor" opacity="0.6"/>
-    <path d="M7 17H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
 // Ícone Cadeado/Segurança
 const IconSecure = () => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,28 +60,24 @@ interface SecurityItem {
 
 const securityItems: SecurityItem[] = [
   {
+    icon: <IconWhatsApp />,
+    text: 'Compra direto pelo WhatsApp',
+  },
+  {
     icon: <IconPix />,
     text: 'Pagamento via Pix',
   },
   {
-    icon: <IconMercadoPago />,
-    text: 'Pague com Mercado Pago',
-  },
-  {
-    icon: <IconSecure />,
-    text: 'Compra 100% segura',
+    icon: <IconWhatsApp />,
+    text: 'Confirmação no WhatsApp',
   },
   {
     icon: <IconDigitalTicket />,
     text: 'Ingresso digital no celular',
   },
   {
-    icon: <IconWhatsApp />,
-    text: 'Confirmação via WhatsApp',
-  },
-  {
     icon: <IconLocation />,
-    text: 'Centro Comunitário - Fernando Prestes, São Paulo',
+    text: 'Centro Comunitário Fernando Prestes',
   },
 ];
 
@@ -150,10 +136,10 @@ export default function SectionSecurity() {
             <IconSecure />
           </div>
           <h2 className="font-titulo text-2xl sm:text-3xl text-cream uppercase tracking-wide">
-            Compra simples
+            Compre pelo WhatsApp
           </h2>
           <p className="font-titulo text-xl sm:text-2xl text-amarelo uppercase tracking-wide mt-1">
-            e segura
+            Pix e confirmação na hora
           </p>
         </motion.div>
 

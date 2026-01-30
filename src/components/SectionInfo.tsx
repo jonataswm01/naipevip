@@ -21,7 +21,7 @@ export default function SectionInfo() {
         </svg>
       ),
       label: 'Data',
-      value: 'Seis de Fevereiro',
+      value: '06 de Fevereiro',
     },
     {
       icon: (
@@ -56,7 +56,7 @@ export default function SectionInfo() {
         </svg>
       ),
       label: 'Classificação',
-      value: 'Maiores de 18 anos',
+      value: 'Menores de 18 somente acompanhados',
     },
   ];
 
