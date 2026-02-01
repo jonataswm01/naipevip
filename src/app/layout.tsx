@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, Source_Serif_4 } from "next/font/google";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 // Fonte para títulos - elegância artística, mistério e sofisticação
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body
         className={`${cinzel.variable} ${sourceSerif.variable} antialiased`}
       >
+        <GoogleAnalytics />
         {children}
       </body>
     </html>
